@@ -15,6 +15,12 @@ npm start       # pornește producție pe PORT || 4000
 npm test        # rulează suita de teste cu node --test
 ```
 
+## Vercel
+
+The repository's root `vercel.json` exposes this Express service under `/api/*`; `index.js` exports the app for Vercel. The frontend reaches it through the public same-origin rewrite, not a service binding.
+
+The current in-memory scan queue and local SQLite database are not durable across Vercel Function instances or deployments. Use a durable database and job queue before relying on scan processing in production.
+
 ## Rute API (`/api`)
 
 | Metodă | Rută | Descriere |
