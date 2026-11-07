@@ -1,16 +1,12 @@
-FROM python:3.12-slim
+FROM node:22-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV NODE_ENV=production
 
 WORKDIR /app
 
-RUN useradd --system --uid 10001 app
+COPY --chown=node:node server.js .
 
-COPY --chown=app:app main.py .
-
-USER app
-
+USER node
 EXPOSE 8000
 
-CMD ["python", "main.py"]
+CMD ["node", "server.js"]

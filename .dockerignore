@@ -1,10 +1,4 @@
 .git
-.venv
-venv
-__pycache__
-*.py[cod]
+node_modules
 .env
-.pytest_cache
-build
-dist
-*.egg-info
+npm-debug.log*
