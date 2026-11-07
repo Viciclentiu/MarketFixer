@@ -1,0 +1,54 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.perspective {
+  background: $dark;
+  color: $paper;
+  padding: $size-82 0 $size-95;
+}
+.perspective h2 {
+  text-align: center;
+  font-size: $size-43;
+}
+.perspective__grid {
+  display: grid;
+  grid-template-columns: 1fr $size-356 1fr;
+  gap: $size-30;
+  align-items: center;
+  margin-top: $size-60;
+}
+.perspective__area-column {
+  display: flex;
+  flex-direction: column;
+  gap: $size-90;
+}
+.perspective__area-column.perspective__area-column--left {
+  text-align: right;
+}
+.perspective__area span,
+.perspective__area p {
+  color: #c3edbd;
+  font-size: $size-23;
+}
+.perspective__area h3 {
+  font-size: $size-36;
+  font-weight: 600;
+}
+.perspective__visual {
+  position: relative;
+}
+.perspective__site-preview {
+  width: $size-356;
+  max-width: 100%;
+  display: block;
+  position: relative;
+}
+.perspective__connections {
+  position: absolute;
+  width: $size-780;
+  max-width: none;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}

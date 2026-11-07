@@ -1,0 +1,97 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.services {
+  background: $mint;
+  padding: $size-120 0;
+}
+.services__grid {
+  display: grid;
+  grid-template-columns: $size-456 1fr;
+  gap: $size-78;
+  align-items: center;
+}
+.services h2 {
+  font-size: $size-43;
+  line-height: 1.13;
+  letter-spacing: -$size-1-5;
+}
+.services__grid > div > p {
+  line-height: 1.7;
+  margin: $size-22 0 $size-30;
+}
+.services ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: $size-20;
+}
+.services li {
+  display: flex;
+  align-items: center;
+  gap: $size-12;
+  font-size: $size-21;
+}
+.services li span {
+  display: grid;
+  place-items: center;
+  width: $size-24;
+  height: $size-24;
+  background: $dark;
+  color: $paper;
+  font-size: $size-15;
+  flex: none;
+}
+.chart {
+  background: $paper;
+  padding: $size-35;
+  box-shadow: 0 $size-28 $size-48 #5cb25c12;
+}
+.chart__heading {
+  font-size: $size-25;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $size-8;
+}
+.chart__heading span {
+  border: $size-1 solid $mint;
+  font-size: $size-20;
+  padding: $size-10;
+}
+.chart__bars {
+  height: $size-190;
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  gap: $size-10;
+  margin: $size-25 0 $size-16;
+}
+.chart__bars div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $size-10;
+  font-size: $size-16;
+}
+.chart__bars i {
+  display: block;
+  width: $size-33;
+  background: $mint;
+}
+.chart__result {
+  border-top: $size-1 solid $mint;
+  padding: $size-32 $size-16 $size-20;
+  font-size: $size-21;
+}
+.chart__result p {
+  font-size: $size-19;
+  line-height: 1.5;
+  padding-left: $size-32;
+  margin-top: $size-6;
+}
+.chart small {
+  font-size: $size-15;
+  color: $green;
+}

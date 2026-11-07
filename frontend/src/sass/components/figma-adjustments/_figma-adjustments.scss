@@ -1,0 +1,227 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+/* Designul Figma pentru ilustrație, prezentarea auditului și traseu. */
+.hero__illustration {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: $size-540;
+  height: auto;
+  z-index: 1;
+}
+.perspective {
+  padding: $size-89 0 $size-96;
+  overflow: hidden;
+}
+.perspective .container {
+  padding-inline: 0;
+}
+.perspective h2 {
+  font-size: $size-48;
+  letter-spacing: -$size-1-2;
+}
+.perspective__grid {
+  grid-template-columns: $size-250 minmax(0, $size-780) $size-250;
+  gap: 0;
+  margin-top: $size-39;
+  min-height: $size-350;
+}
+.perspective__area-column {
+  gap: $size-113;
+}
+.perspective__area-column.perspective__area-column--left {
+  padding-right: $size-28;
+}
+.perspective__area-column:not(.perspective__area-column--left) {
+  padding-left: $size-27;
+}
+.perspective__area h3 {
+  line-height: 1.2;
+}
+.perspective__area p {
+  white-space: nowrap;
+}
+.perspective__visual {
+  height: $size-266;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.perspective__visual .perspective__connections {
+  width: 100%;
+  height: auto;
+  max-width: none;
+  z-index: 1;
+}
+.perspective__visual .perspective__site-preview {
+  width: $size-356;
+  max-width: 55%;
+  z-index: 2;
+}
+.process {
+  position: relative;
+  background: #bbddc1;
+  padding-bottom: $size-125;
+}
+.process__decoration {
+  position: absolute;
+  pointer-events: none;
+}
+.process__decoration--top {
+  width: $size-202;
+  left: -$size-90;
+  top: $size-99;
+}
+.process__decoration--bottom {
+  width: $size-253;
+  left: -$size-164;
+  bottom: $size-2;
+}
+.process__steps {
+  margin-top: $size-187;
+}
+.process__journey {
+  left: 16.6667%;
+  width: 66.6667%;
+  top: -$size-21;
+  height: $size-112;
+}
+.process__journey--track {
+  height: $size-121;
+  top: -$size-25;
+}
+.process__journey--path {
+  z-index: 1;
+}
+.process__step {
+  z-index: 2;
+}
+.process__step-icon img {
+  width: $size-25;
+  height: $size-25;
+}
+.process__step:nth-child(3) {
+  transform: translateY(-$size-59);
+}
+.process__step:nth-child(4) {
+  transform: translateY($size-52);
+}
+@media (max-width: $breakpoint-tablet) {
+  .perspective__grid {
+    grid-template-columns: 22% 56% 22%;
+  }
+  .perspective__area-column.perspective__area-column--left {
+    padding-right: $size-12;
+  }
+  .perspective__area-column:not(.perspective__area-column--left) {
+    padding-left: $size-12;
+  }
+  .perspective__area p {
+    white-space: normal;
+  }
+  .perspective__visual .perspective__connections {
+    width: 100%;
+  }
+  .perspective__visual .perspective__site-preview {
+    max-width: 65%;
+  }
+}
+@media (max-width: $breakpoint-mobile) {
+  .hero__art {
+    height: auto;
+    min-height: $size-340;
+  }
+  .hero__illustration {
+    width: 100%;
+  }
+  .perspective {
+    padding: $size-65 0;
+  }
+  .perspective .container {
+    padding-inline: $size-20;
+  }
+  .perspective h2 {
+    font-size: $size-34;
+  }
+  .perspective__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $size-28;
+    margin-top: $size-35;
+    min-height: 0;
+  }
+  .perspective__visual {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    height: auto;
+    order: initial;
+    margin: 0 auto $size-10;
+    width: 100%;
+  }
+  .perspective__visual .perspective__site-preview {
+    width: $size-356;
+    max-width: 80%;
+  }
+  .perspective__visual .perspective__connections {
+    display: none;
+  }
+  .perspective__area-column,
+  .perspective__area-column.perspective__area-column--left {
+    width: auto;
+    text-align: left;
+    gap: $size-32;
+    padding: 0;
+  }
+  .perspective__area h3 {
+    font-size: $size-25;
+  }
+  .perspective__area p {
+    font-size: $size-17;
+  }
+  .process__decoration {
+    opacity: 0.55;
+  }
+  .process__steps {
+    margin-top: $size-65;
+  }
+  .process__journey {
+    display: none;
+  }
+  .process__step:nth-child(n) {
+    transform: none;
+  }
+}
+@media (min-width: $breakpoint-mobile-up) {
+  .process__step:nth-child(3) {
+    transform: none;
+  }
+  .process__step:nth-child(4) {
+    transform: translateY(-$size-59);
+  }
+  .process__step:nth-child(5) {
+    transform: translateY($size-52);
+  }
+}
+@media (min-width: $breakpoint-mobile-up) and (max-width: $breakpoint-wide-max) {
+  .perspective__grid {
+    grid-template-columns: 23% 54% 23%;
+  }
+  .perspective__area-column.perspective__area-column--left {
+    padding-right: $size-28;
+  }
+  .perspective__area-column:not(.perspective__area-column--left) {
+    padding-left: $size-28;
+    padding-right: $size-12;
+  }
+  .perspective__area h3 {
+    font-size: clamp($size-25, 3vw, $size-36);
+  }
+  .perspective__area p {
+    font-size: clamp($size-17, 1.8vw, $size-23);
+    white-space: normal;
+  }
+  .perspective__visual .perspective__site-preview {
+    max-width: 65%;
+  }
+}

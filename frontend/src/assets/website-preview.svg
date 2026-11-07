@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="356" height="266" viewBox="0 0 356 266" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Website preview">
+<rect x="1" y="1" width="354" height="264" rx="2" fill="#F0FFF9"/>
+<rect x="1" y="1" width="354" height="264" rx="2" stroke="#B9DEBD" stroke-width="2"/>
+<rect id="Browser toolbar" width="356" height="36" fill="#F0FFF9"/>
+<rect id="Media" x="217" y="70" width="106" height="158" fill="#CDFFCD"/>
+<path id="Media chart" d="M226 212L258 166L282 193L298 172L323 212" stroke-width="3" stroke="#475149"/>
+<rect id="Website action" x="30" y="199" width="89" height="28" rx="2" fill="#475149"/>
+<rect id="Description" x="30" y="168" width="121" height="6" fill="#CDFFCD"/>
+<rect id="Description_2" x="30" y="153" width="147" height="6" fill="#CDFFCD"/>
+<rect id="Headline" x="30" y="116" width="137" height="16" rx="2" fill="#475149"/>
+<rect id="Headline_2" x="30" y="91" width="180" height="16" rx="2" fill="#475149"/>
+<rect id="Eyebrow" x="30" y="64" width="92" height="7" fill="#CDFFCD"/>
+<rect id="Header divider" y="36" width="356" height="1" fill="#CDFFCD"/>
+<rect id="Address field" x="82" y="13" width="184" height="13" rx="6.5" fill="#CDFFCD"/>
+<circle id="Window control" cx="49.5" cy="19.5" r="3.5" fill="#CDFFCD"/>
+<circle id="Window control_2" cx="35.5" cy="19.5" r="3.5" fill="#CDFFCD"/>
+<circle id="Window control_3" cx="21.5" cy="19.5" r="3.5" fill="#CDFFCD"/>
+</g>
+</svg>

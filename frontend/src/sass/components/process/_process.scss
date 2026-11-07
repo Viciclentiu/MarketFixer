@@ -1,0 +1,85 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.process {
+  background: #b9debd;
+  text-align: center;
+  padding: $size-67 0 $size-110;
+  overflow: hidden;
+}
+.process h2 {
+  font-size: $size-43;
+  line-height: 1.12;
+  max-width: $size-726;
+  margin: auto;
+  letter-spacing: -$size-1-4;
+}
+.process__intro {
+  margin: $size-25 auto 0;
+}
+.process__steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $size-25;
+  position: relative;
+  margin: $size-140 auto 0;
+  max-width: $size-1050;
+}
+.process__journey {
+  position: absolute;
+  width: 70%;
+  top: $size-35;
+  left: 15%;
+}
+.process__step {
+  position: relative;
+}
+.process__step:nth-child(3) {
+  transform: translateY(-$size-59);
+}
+.process__step:nth-child(4) {
+  transform: translateY($size-52);
+}
+.process__step-icon {
+  position: relative;
+  margin: 0 auto $size-22;
+  width: $size-76;
+  height: $size-76;
+  border: $size-2 solid $dark;
+  border-radius: 50%;
+  background: $paper;
+  display: grid;
+  place-items: center;
+  font-size: $size-30;
+  box-shadow: 0 $size-18 $size-40 #344b4026;
+}
+.process__step-icon span {
+  position: absolute;
+  right: -$size-3;
+  top: -$size-7;
+  background: $dark;
+  border: $size-2 solid $mint;
+  color: $paper;
+  font-size: $size-16;
+  width: $size-28;
+  height: $size-28;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.process__step > b {
+  font-size: $size-18;
+}
+.process__step h3 {
+  font-size: $size-27;
+  font-weight: 500;
+  margin: $size-8 auto;
+  max-width: $size-260;
+  line-height: 1.15;
+}
+.process__step p {
+  font-size: $size-21;
+  line-height: 1.45;
+  max-width: $size-280;
+  margin: auto;
+}

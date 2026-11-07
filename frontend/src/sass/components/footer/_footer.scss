@@ -1,0 +1,35 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.cta {
+  min-height: $size-204;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $size-30;
+}
+.cta h2 {
+  font-size: $size-36;
+  letter-spacing: -$size-1-2;
+}
+footer {
+  background: $dark;
+  color: #c3edbd;
+}
+.footer {
+  min-height: $size-118;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $size-25;
+}
+.footer .logo span {
+  color: #bcf6be;
+}
+.footer nav {
+  font-size: $size-16;
+  gap: $size-32;
+}
+.footer small {
+  font-size: $size-14;
+}
