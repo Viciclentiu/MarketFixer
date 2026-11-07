@@ -5,11 +5,13 @@ export default defineConfig({
     cssMinify: false,
     outDir: "../backend/public",
     emptyOutDir: false,
+    rollupOptions: {
+      input: { main: 'index.html', audit: 'audit.html' },
+    },
   },
   server: {
     proxy: {
-      "/api": "http://localhost:3000",
-      "/audit.html": "http://localhost:3000",
+      "/api": "http://localhost:4000",
     },
   },
 });
