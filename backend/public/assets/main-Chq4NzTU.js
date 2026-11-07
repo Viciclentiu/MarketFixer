@@ -1,32 +1,4 @@
-(function polyfill() {
-  const relList = document.createElement("link").relList;
-  if (relList && relList.supports && relList.supports("modulepreload")) return;
-  for (const link of document.querySelectorAll('link[rel="modulepreload"]')) processPreload(link);
-  new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type !== "childList") continue;
-      for (const node of mutation.addedNodes) if (node.tagName === "LINK" && node.rel === "modulepreload") processPreload(node);
-    }
-  }).observe(document, {
-    childList: true,
-    subtree: true
-  });
-  function getFetchOpts(link) {
-    const fetchOpts = {};
-    if (link.integrity) fetchOpts.integrity = link.integrity;
-    if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;
-    if (link.crossOrigin === "use-credentials") fetchOpts.credentials = "include";
-    else if (link.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
-    else fetchOpts.credentials = "same-origin";
-    return fetchOpts;
-  }
-  function processPreload(link) {
-    if (link.ep) return;
-    link.ep = true;
-    const fetchOpts = getFetchOpts(link);
-    fetch(link.href, fetchOpts);
-  }
-})();
+import "./modulepreload-polyfill-COaX8i6R.js";
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 }
@@ -1405,11 +1377,11 @@ function requireReactDomClient_production() {
   }
   function getStackByFiberInDevAndProd(workInProgress2) {
     try {
-      var info = "", previous = null;
+      var info2 = "", previous = null;
       do
-        info += describeFiber(workInProgress2, previous), previous = workInProgress2, workInProgress2 = workInProgress2.return;
+        info2 += describeFiber(workInProgress2, previous), previous = workInProgress2, workInProgress2 = workInProgress2.return;
       while (workInProgress2);
-      return info;
+      return info2;
     } catch (x) {
       return "\nError generating stack: " + x.message + "\n" + x.stack;
     }
@@ -10240,9 +10212,9 @@ function requireReactDomClient_production() {
               });
             "function" === typeof priorFocusedElem.focus && priorFocusedElem.focus();
             for (priorFocusedElem = 0; priorFocusedElem < doc.length; priorFocusedElem++) {
-              var info = doc[priorFocusedElem];
-              info.element.scrollLeft = info.left;
-              info.element.scrollTop = info.top;
+              var info2 = doc[priorFocusedElem];
+              info2.element.scrollLeft = info2.left;
+              info2.element.scrollTop = info2.top;
             }
           }
           _enabled = !!eventsEnabled;
@@ -14238,12 +14210,300 @@ const sparkle = "data:image/svg+xml,%3csvg%20preserveAspectRatio='none'%20overfl
 const fileText = "data:image/svg+xml,%3csvg%20preserveAspectRatio='none'%20overflow='visible'%20style='display:%20block;'%20width='25'%20height='25'%20viewBox='0%200%2025%2025'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20id='file-text'%3e%3cpath%20id='Vector'%20d='M14.5831%202.0825H6.25062C5.69815%202.0825%205.16829%202.30201%204.77763%202.69275C4.38697%203.08348%204.1675%203.61342%204.1675%204.166V20.834C4.1675%2021.3866%204.38697%2021.9165%204.77763%2022.3073C5.16829%2022.698%205.69815%2022.9175%206.25062%2022.9175H18.7494C19.3018%2022.9175%2019.8317%2022.698%2020.2224%2022.3073C20.613%2021.9165%2020.8325%2021.3866%2020.8325%2020.834V8.333M14.5831%202.0825C14.9128%202.08197%2015.2394%202.14668%2015.544%202.2729C15.8486%202.39913%2016.1252%202.58438%2016.3579%202.81798L20.0951%206.55578C20.3293%206.78862%2020.515%207.06555%2020.6416%207.37059C20.7681%207.67564%2020.833%208.00274%2020.8325%208.333M14.5831%202.0825V7.29125C14.5831%207.56754%2014.6929%207.83251%2014.8882%208.02788C15.0835%208.22324%2015.3484%208.333%2015.6247%208.333L20.8325%208.333M10.4169%209.37475H8.33375M16.6662%2013.5417H8.33375M16.6662%2017.7087H8.33375'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke='%234B554E'/%3e%3c/g%3e%3c/svg%3e";
 const ellipse4 = "data:image/svg+xml,%3csvg%20preserveAspectRatio='none'%20overflow='visible'%20style='display:%20block;'%20width='202'%20height='202'%20viewBox='0%200%20202%20202'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cmask%20id='stroke0_0_4'%20fill='white'%3e%3cpath%20d='M202%20101C202%20156.781%20156.781%20202%20101%20202C45.2192%20202%200%20156.781%200%20101C0%2045.2192%2045.2192%200%20101%200C156.781%200%20202%2045.2192%20202%20101Z'/%3e%3c/mask%3e%3cpath%20id='Ellipse%204'%20d='M202%20101C202%20156.781%20156.781%20202%20101%20202C45.2192%20202%200%20156.781%200%20101C0%2045.2192%2045.2192%200%20101%200C156.781%200%20202%2045.2192%20202%20101Z'%20stroke-width='2'%20stroke='%234B554E'%20mask='url(%23stroke0_0_4)'/%3e%3c/svg%3e";
 const ellipse5 = "data:image/svg+xml,%3csvg%20preserveAspectRatio='none'%20overflow='visible'%20style='display:%20block;'%20width='253'%20height='253'%20viewBox='0%200%20253%20253'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20id='Ellipse%205'%20cx='126.5'%20cy='126.5'%20r='126'%20stroke='%234B554E'/%3e%3c/svg%3e";
+async function request(path, options = {}) {
+  let response;
+  try {
+    response = await fetch(`/api${path}`, options);
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
+    throw new Error(
+      "Nu putem contacta serverul. Verifică conexiunea și încearcă din nou."
+    );
+  }
+  const data = await response.json().catch(() => null);
+  if (!response.ok)
+    throw new Error(data?.error || `Cererea a eșuat (${response.status}).`);
+  if (data === null) throw new Error("Serverul a trimis un răspuns invalid.");
+  return data;
+}
+const scanPath = (id) => `/scans/${encodeURIComponent(id)}`;
+const categories = {
+  seo: "SEO",
+  technical: "Tehnic",
+  accessibility: "Accesibilitate",
+  ux: "Experiență",
+  content: "Conținut",
+  ai_search: "Căutare AI"
+};
+const severity = {
+  critical: "Critică",
+  high: "Ridicată",
+  medium: "Medie",
+  low: "Scăzută"
+};
+const statusLabels = {
+  queued: "În așteptare",
+  crawling: "Explorăm paginile",
+  analyzing: "Analizăm site-ul",
+  done: "Finalizată",
+  failed: "Eșuată"
+};
+const scoreLabels = {
+  overall: "Scor general",
+  seo: "SEO",
+  accessibility: "Accesibilitate",
+  ux: "Experiență",
+  content: "Conținut"
+};
+const date = (value) => value ? new Date(value).toLocaleString("ro-RO") : "—";
+function Finding({ finding }) {
+  return /* @__PURE__ */ React.createElement("details", { className: "audit-finding" }, /* @__PURE__ */ React.createElement("summary", null, /* @__PURE__ */ React.createElement("span", { className: `audit-badge audit-badge--${finding.severity}` }, severity[finding.severity]), /* @__PURE__ */ React.createElement("strong", null, finding.title), /* @__PURE__ */ React.createElement("span", null, categories[finding.category])), /* @__PURE__ */ React.createElement("div", { className: "audit-finding__body" }, finding.pageUrl && /* @__PURE__ */ React.createElement("a", { href: finding.pageUrl, target: "_blank", rel: "noreferrer" }, finding.pageUrl, " ↗"), /* @__PURE__ */ React.createElement("h4", null, "Dovada"), /* @__PURE__ */ React.createElement("p", null, finding.evidence.summary), finding.evidence.value != null && /* @__PURE__ */ React.createElement("p", null, "Valoare: ", String(finding.evidence.value)), finding.evidence.expected && /* @__PURE__ */ React.createElement("p", null, "Așteptat: ", finding.evidence.expected), finding.evidence.snippet && /* @__PURE__ */ React.createElement("pre", null, finding.evidence.snippet), /* @__PURE__ */ React.createElement("h4", null, "De ce contează"), /* @__PURE__ */ React.createElement("p", null, finding.whyItMatters), /* @__PURE__ */ React.createElement("h4", null, "Ce poți schimba"), /* @__PURE__ */ React.createElement("p", null, finding.recommendation), /* @__PURE__ */ React.createElement("small", null, "Efort: ", severity[finding.effort], " · Sursă: ", finding.source), finding.affectedPages?.length > 0 && /* @__PURE__ */ React.createElement("details", null, /* @__PURE__ */ React.createElement("summary", null, "Pagini afectate (", finding.affectedPages.length, ")"), /* @__PURE__ */ React.createElement("ul", null, finding.affectedPages.map((p) => /* @__PURE__ */ React.createElement("li", { key: p }, p))))));
+}
+function Audit() {
+  const params = new URLSearchParams(window.location.search);
+  const [id, setId] = reactExports.useState(params.get("scan") || "");
+  const [url, setUrl] = reactExports.useState(params.get("url") || "");
+  const [maxPages, setMaxPages] = reactExports.useState(20);
+  const [scan, setScan] = reactExports.useState(null);
+  const [report, setReport] = reactExports.useState(null);
+  const [history, setHistory] = reactExports.useState([]);
+  const [error, setError] = reactExports.useState("");
+  const [historyError, setHistoryError] = reactExports.useState("");
+  const [busy, setBusy] = reactExports.useState(false);
+  const [retry, setRetry] = reactExports.useState(0);
+  const [category, setCategory] = reactExports.useState("all");
+  const [level, setLevel] = reactExports.useState("all");
+  const [comparison, setComparison] = reactExports.useState(null);
+  const [previous, setPrevious] = reactExports.useState("");
+  const [uploading, setUploading] = reactExports.useState(false);
+  const [uploadError, setUploadError] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    const controller = new AbortController();
+    request("/scans", { signal: controller.signal }).then(setHistory).catch((e) => {
+      if (e.name !== "AbortError") setHistoryError(e.message);
+    });
+    return () => controller.abort();
+  }, [id, report, retry]);
+  reactExports.useEffect(() => {
+    if (!id) return;
+    const controller = new AbortController();
+    let timer;
+    setScan(null);
+    setReport(null);
+    setError("");
+    setComparison(null);
+    setPrevious("");
+    setUploadError("");
+    async function poll() {
+      try {
+        const state = await request(scanPath(id), {
+          signal: controller.signal
+        });
+        setScan(state);
+        if (state.status === "done") {
+          setReport(
+            await request(`${scanPath(id)}/report`, {
+              signal: controller.signal
+            })
+          );
+        } else if (state.status === "failed") {
+          setError(state.error || "Analiza nu a putut fi finalizată.");
+        } else timer = setTimeout(poll, 1800);
+      } catch (e) {
+        if (e.name !== "AbortError") setError(e.message);
+      }
+    }
+    poll();
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [id, retry]);
+  reactExports.useEffect(() => {
+    setComparison(null);
+    if (!previous || !id) return;
+    const controller = new AbortController();
+    request(`${scanPath(id)}/compare/${encodeURIComponent(previous)}`, {
+      signal: controller.signal
+    }).then(setComparison).catch((e) => {
+      if (e.name !== "AbortError") setComparison({ error: e.message });
+    });
+    return () => controller.abort();
+  }, [id, previous]);
+  function selectScan(nextId) {
+    window.history.replaceState(
+      null,
+      "",
+      `?view=audit&scan=${encodeURIComponent(nextId)}`
+    );
+    setId(nextId);
+    if (id === nextId) setRetry((n) => n + 1);
+  }
+  async function start(event) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const result = await request("/scans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim(), maxPages: Number(maxPages) })
+      });
+      selectScan(result.scanId);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function upload(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const file = new FormData(form).get("file");
+    if (!file?.size || file.size > 5 * 1024 * 1024) {
+      setUploadError("Alege un fișier CSV nevid, de maximum 5 MB.");
+      return;
+    }
+    setUploading(true);
+    setUploadError("");
+    const targetId = id;
+    try {
+      const performance2 = await request(`${scanPath(targetId)}/performance`, {
+        method: "POST",
+        body: new FormData(form)
+      });
+      setReport(
+        (current) => current?.scanId === targetId ? { ...current, performance: performance2 } : current
+      );
+      form.reset();
+    } catch (e) {
+      setUploadError(e.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+  const active = id && (!scan || !["done", "failed"].includes(scan.status)) && !error;
+  const findings = (report?.findings || []).filter(
+    (f) => (category === "all" || f.category === category) && (level === "all" || f.severity === level)
+  );
+  const comparable = history.filter(
+    (s) => s.status === "done" && s.scanId !== id && s.url === report?.url && s.createdAt < scan?.createdAt
+  );
+  return /* @__PURE__ */ React.createElement("div", { className: "audit" }, /* @__PURE__ */ React.createElement("header", { className: "header" }, /* @__PURE__ */ React.createElement("div", { className: "container navigation" }, /* @__PURE__ */ React.createElement("a", { className: "logo", href: "/" }, "market ", /* @__PURE__ */ React.createElement("span", null, "fixer"), /* @__PURE__ */ React.createElement("img", { src: wrench, alt: "" })), /* @__PURE__ */ React.createElement("a", { href: "/" }, "← Înapoi la prezentare"))), /* @__PURE__ */ React.createElement("main", { className: "container audit-main" }, /* @__PURE__ */ React.createElement("div", { className: "audit-heading" }, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "DE LA ANALIZĂ LA ACȚIUNE"), /* @__PURE__ */ React.createElement("h1", null, "Un site mai bun.", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("em", null, "Un pas clar înainte.")), /* @__PURE__ */ React.createElement("p", null, "Explorează problemele, verifică dovezile și alege ce merită îmbunătățit.")), /* @__PURE__ */ React.createElement("form", { className: "audit-panel audit-form", onSubmit: start }, /* @__PURE__ */ React.createElement("label", null, "Adresa site-ului", /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "url",
+      required: true,
+      placeholder: "https://exemplu.ro",
+      value: url,
+      onChange: (e) => setUrl(e.target.value)
+    }
+  )), /* @__PURE__ */ React.createElement("label", null, "Limită pagini", /* @__PURE__ */ React.createElement(
+    "select",
+    {
+      "aria-label": "Limită pagini",
+      value: maxPages,
+      onChange: (e) => setMaxPages(e.target.value)
+    },
+    [5, 10, 20, 50].map((n) => /* @__PURE__ */ React.createElement("option", { key: n, value: n }, n, " pagini"))
+  )), /* @__PURE__ */ React.createElement("button", { className: "button button--green", disabled: busy || !!active }, busy ? "Pornim analiza…" : "Analizează site-ul →")), error && /* @__PURE__ */ React.createElement("div", { className: "audit-error", role: "alert" }, error, " ", id && /* @__PURE__ */ React.createElement("button", { onClick: () => setRetry((n) => n + 1) }, "Reîncearcă încărcarea")), active && /* @__PURE__ */ React.createElement("section", { className: "audit-panel", role: "status" }, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "ANALIZĂ ÎN DESFĂȘURARE"), /* @__PURE__ */ React.createElement("h2", null, statusLabels[scan?.status] || "Încărcăm scanarea…"), /* @__PURE__ */ React.createElement("p", null, scan?.url), /* @__PURE__ */ React.createElement(
+    "progress",
+    {
+      "aria-label": "Progresul analizei",
+      max: scan?.progress?.total || 1,
+      value: scan?.progress?.total > 0 ? scan.progress.done : void 0
+    }
+  ), /* @__PURE__ */ React.createElement("p", null, scan?.progress?.done || 0, scan?.progress?.total ? ` / ${scan.progress.total}` : "", " pași finalizați. Poți reveni folosind această adresă.")), report && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("section", { className: "audit-report-heading" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "RAPORTUL TĂU"), /* @__PURE__ */ React.createElement("h2", null, report.url), /* @__PURE__ */ React.createElement("p", null, report.pagesAnalyzed, " pagini analizate ·", " ", date(report.generatedAt))), /* @__PURE__ */ React.createElement(
+    "a",
+    {
+      className: "button button--dark",
+      href: `/api${scanPath(id)}/report`,
+      target: "_blank",
+      rel: "noreferrer"
+    },
+    "Deschide datele raportului ↗"
+  )), /* @__PURE__ */ React.createElement("section", { className: "audit-scores", "aria-label": "Scoruri" }, Object.entries(scoreLabels).map(([key, label]) => /* @__PURE__ */ React.createElement("article", { className: "audit-panel", key }, /* @__PURE__ */ React.createElement("span", null, label), /* @__PURE__ */ React.createElement("strong", null, report.scores[key], /* @__PURE__ */ React.createElement("small", null, "/100")), /* @__PURE__ */ React.createElement(
+    "meter",
+    {
+      min: "0",
+      max: "100",
+      value: report.scores[key],
+      "aria-label": label
+    }
+  )))), /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("div", { className: "audit-section-heading" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "PLAN DE ÎMBUNĂTĂȚIRE"), /* @__PURE__ */ React.createElement("h2", null, "Începe cu ce contează")), /* @__PURE__ */ React.createElement("span", null, report.summary.totalFindings, " constatări")), /* @__PURE__ */ React.createElement("div", { className: "audit-filters" }, /* @__PURE__ */ React.createElement("label", null, "Categorie", /* @__PURE__ */ React.createElement(
+    "select",
+    {
+      "aria-label": "Categorie",
+      value: category,
+      onChange: (e) => setCategory(e.target.value)
+    },
+    /* @__PURE__ */ React.createElement("option", { value: "all" }, "Toate categoriile"),
+    Object.entries(categories).map(([key, label]) => /* @__PURE__ */ React.createElement("option", { key, value: key }, label))
+  )), /* @__PURE__ */ React.createElement("label", null, "Prioritate", /* @__PURE__ */ React.createElement(
+    "select",
+    {
+      "aria-label": "Prioritate",
+      value: level,
+      onChange: (e) => setLevel(e.target.value)
+    },
+    /* @__PURE__ */ React.createElement("option", { value: "all" }, "Toate prioritățile"),
+    Object.entries(severity).map(([key, label]) => /* @__PURE__ */ React.createElement("option", { key, value: key }, label))
+  ))), findings.length ? [...findings].sort(
+    (a, b) => Object.keys(severity).indexOf(a.severity) - Object.keys(severity).indexOf(b.severity)
+  ).map((f) => /* @__PURE__ */ React.createElement(Finding, { key: f.fingerprint, finding: f })) : /* @__PURE__ */ React.createElement("p", null, "Nu există constatări pentru selecția curentă.")), report.limitations?.length > 0 && /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("h2", null, "Limitele analizei"), /* @__PURE__ */ React.createElement("ul", null, report.limitations.map((l, i) => /* @__PURE__ */ React.createElement("li", { key: i }, l)))), /* @__PURE__ */ React.createElement("div", { className: "audit-columns" }, /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "EVOLUȚIE"), /* @__PURE__ */ React.createElement("h2", null, "Ce s-a schimbat?"), /* @__PURE__ */ React.createElement("label", null, "Compară cu o analiză anterioară", /* @__PURE__ */ React.createElement(
+    "select",
+    {
+      "aria-label": "Compară cu o analiză anterioară",
+      value: previous,
+      onChange: (e) => setPrevious(e.target.value)
+    },
+    /* @__PURE__ */ React.createElement("option", { value: "" }, "Alege o scanare"),
+    comparable.map((s) => /* @__PURE__ */ React.createElement("option", { key: s.scanId, value: s.scanId }, date(s.createdAt)))
+  )), !comparable.length && /* @__PURE__ */ React.createElement("p", null, "Comparația devine disponibilă după două analize finalizate ale aceleiași adrese."), previous && !comparison && /* @__PURE__ */ React.createElement("p", { role: "status" }, "Încărcăm comparația…"), comparison?.error && /* @__PURE__ */ React.createElement("p", { role: "alert" }, comparison.error), comparison && !comparison.error && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", null, comparison.resolved.length, " rezolvate ·", " ", comparison.new.length, " noi ·", " ", comparison.remaining.length, " persistente"), /* @__PURE__ */ React.createElement("ul", null, Object.entries(comparison.scoreDelta).map(
+    ([key, value]) => /* @__PURE__ */ React.createElement("li", { key }, scoreLabels[key] || key, ": ", value > 0 ? "+" : "", value, " puncte")
+  )), [
+    ["resolved", "Rezolvate"],
+    ["new", "Noi"],
+    ["remaining", "Persistente"]
+  ].map(([key, label]) => /* @__PURE__ */ React.createElement("details", { key }, /* @__PURE__ */ React.createElement("summary", null, label, " (", comparison[key].length, ")"), /* @__PURE__ */ React.createElement("ul", null, comparison[key].map((f) => /* @__PURE__ */ React.createElement("li", { key: f.fingerprint }, f.title, " — ", f.evidence.summary))))))), /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "DATELE TALE, ÎN CONTEXT"), /* @__PURE__ */ React.createElement("h2", null, "Performanța campaniilor"), /* @__PURE__ */ React.createElement("p", null, "Încarcă un CSV pentru concluzii susținute de datele tale. Maximum 5 MB."), /* @__PURE__ */ React.createElement("form", { onSubmit: upload }, /* @__PURE__ */ React.createElement("label", null, "Fișier CSV", /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      name: "file",
+      type: "file",
+      accept: ".csv,text/csv",
+      required: true,
+      disabled: uploading
+    }
+  )), /* @__PURE__ */ React.createElement("button", { className: "button button--green", disabled: uploading }, uploading ? "Analizăm datele…" : "Analizează CSV →")), uploadError && /* @__PURE__ */ React.createElement("p", { role: "alert" }, uploadError), report.performance && /* @__PURE__ */ React.createElement("div", { "aria-live": "polite" }, /* @__PURE__ */ React.createElement("h3", null, report.performance.rowCount, " rânduri analizate"), report.performance.warnings.map((w, i) => /* @__PURE__ */ React.createElement("p", { key: i }, w)), !report.performance.insights.length && /* @__PURE__ */ React.createElement("p", null, "Date insuficiente pentru concluzii comparative."), report.performance.insights.map((insight, i) => /* @__PURE__ */ React.createElement("article", { className: "audit-insight", key: i }, /* @__PURE__ */ React.createElement("h4", null, insight.statement), /* @__PURE__ */ React.createElement("p", null, "Încredere: ", severity[insight.confidence]), /* @__PURE__ */ React.createElement("p", null, "Indicator: ", insight.evidence.metric), /* @__PURE__ */ React.createElement("ul", null, insight.evidence.groups.map((g, j) => /* @__PURE__ */ React.createElement("li", { key: j }, g.name, ": n=", g.n, ", medie ", g.mean, ", total ", g.total))), insight.caveat && /* @__PURE__ */ React.createElement("p", null, insight.caveat))))))), /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("div", { className: "audit-section-heading" }, /* @__PURE__ */ React.createElement("h2", null, "Istoricul analizelor"), /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => {
+        setHistoryError("");
+        setRetry((n) => n + 1);
+      }
+    },
+    "Actualizează"
+  )), historyError && /* @__PURE__ */ React.createElement("p", { role: "alert" }, historyError), !history.length && /* @__PURE__ */ React.createElement("p", null, "Scanările tale vor apărea aici."), /* @__PURE__ */ React.createElement("ul", { className: "audit-history" }, history.map((s) => /* @__PURE__ */ React.createElement("li", { key: s.scanId }, /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => selectScan(s.scanId),
+      "aria-current": id === s.scanId ? "true" : void 0
+    },
+    /* @__PURE__ */ React.createElement("strong", null, s.url),
+    /* @__PURE__ */ React.createElement("span", null, date(s.createdAt)),
+    /* @__PURE__ */ React.createElement("span", null, statusLabels[s.status]),
+    /* @__PURE__ */ React.createElement("span", { "aria-hidden": "true" }, "→")
+  )))))), /* @__PURE__ */ React.createElement("footer", { className: "audit-footer" }, "Market Fixer · Recomandări susținute de dovezi"));
+}
+const info = "data:image/svg+xml,%3csvg%20preserveAspectRatio='none'%20overflow='visible'%20style='display:%20block;'%20width='12'%20height='12'%20viewBox='0%200%2012%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20id='info'%20clip-path='url(%23clip0_0_4)'%3e%3cpath%20id='Vector'%20d='M6%208.00016V6M6%203.99984H6.005M11.0004%206C11.0004%208.76164%208.76164%2011.0004%206%2011.0004C3.23836%2011.0004%200.9996%208.76164%200.9996%206C0.9996%203.23836%203.23836%200.9996%206%200.9996C8.76164%200.9996%2011.0004%203.23836%2011.0004%206Z'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke='%23CDFFCD'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_0_4'%3e%3crect%20width='12'%20height='12'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
 const Arrow = () => /* @__PURE__ */ React.createElement("span", { "aria-hidden": "true" }, "→");
 function Logo() {
   return /* @__PURE__ */ React.createElement("a", { className: "logo", href: "#analyze" }, /* @__PURE__ */ React.createElement("span", { className: "logo__wordmark" }, "market ", /* @__PURE__ */ React.createElement("span", null, "fixer")), /* @__PURE__ */ React.createElement("img", { src: wrench, alt: "" }));
 }
 function App() {
   const [url, setUrl] = reactExports.useState("");
+  const [starting, setStarting] = reactExports.useState(false);
+  const [startError, setStartError] = reactExports.useState("");
   reactExports.useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
@@ -14267,9 +14527,18 @@ function App() {
     });
     return () => observer.disconnect();
   }, []);
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
-    window.location.assign(`/audit.html?url=${encodeURIComponent(url.trim())}`);
+    if (starting) return;
+    setStarting(true);
+    setStartError("");
+    try {
+      const scan = await request("/scans", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url.trim() }) });
+      window.location.assign(`/?view=audit&scan=${encodeURIComponent(scan.scanId)}`);
+    } catch (error) {
+      setStartError(error.message);
+      setStarting(false);
+    }
   }
   const areas = [
     ["01", "SEO & AEO", "Structure and visibility"],
@@ -14307,7 +14576,7 @@ function App() {
       value: url,
       onChange: (e) => setUrl(e.target.value)
     }
-  ), /* @__PURE__ */ React.createElement("button", { className: "button button--green", type: "submit" }, "Start analysis ", /* @__PURE__ */ React.createElement(Arrow, null)))), /* @__PURE__ */ React.createElement("small", null, "♧   We only scan public pages. No card. No account access.")), /* @__PURE__ */ React.createElement("div", { className: "hero__art" }, /* @__PURE__ */ React.createElement("div", { className: "hero__orbit" }), /* @__PURE__ */ React.createElement(
+  ), /* @__PURE__ */ React.createElement("button", { className: "button button--green", type: "submit", disabled: starting }, starting ? "Starting…" : "Start analysis", " ", /* @__PURE__ */ React.createElement(Arrow, null)))), startError && /* @__PURE__ */ React.createElement("p", { className: "audit-error", role: "alert" }, startError), /* @__PURE__ */ React.createElement("small", null, "♧   We only scan public pages. No card. No account access.")), /* @__PURE__ */ React.createElement("div", { className: "hero__art" }, /* @__PURE__ */ React.createElement("div", { className: "hero__orbit" }), /* @__PURE__ */ React.createElement(
     "img",
     {
       className: "hero__illustration",
@@ -14365,11 +14634,13 @@ function App() {
     },
     "View the guidelines ",
     /* @__PURE__ */ React.createElement(Arrow, null)
-  )))), /* @__PURE__ */ React.createElement("section", { className: "services", id: "information" }, /* @__PURE__ */ React.createElement("div", { className: "container services__grid" }, /* @__PURE__ */ React.createElement("div", { "data-reveal": true }, /* @__PURE__ */ React.createElement("h2", null, "Everything that affects how people find and understand you."), /* @__PURE__ */ React.createElement("p", null, "We review your online presence as a whole: technical, human, and grounded in evidence."), /* @__PURE__ */ React.createElement("ul", null, [
-    "Technical SEO audit and AEO readiness",
-    "Accessibility and mobile experience",
-    "Content clarity and originality",
-    "Campaign analysis based on uploaded data"
-  ].map((x) => /* @__PURE__ */ React.createElement("li", { key: x }, /* @__PURE__ */ React.createElement("span", null, "✓"), x)))), /* @__PURE__ */ React.createElement("div", { className: "chart", "data-reveal": true }, /* @__PURE__ */ React.createElement("div", { className: "chart__heading" }, "What resonated with your audience? ", /* @__PURE__ */ React.createElement("span", null, "Example")), /* @__PURE__ */ React.createElement("div", { className: "chart__bars" }, [79, 128, 93, 147, 109, 140, 100].map((h, i) => /* @__PURE__ */ React.createElement("div", { key: i }, /* @__PURE__ */ React.createElement("i", { style: { height: `${h / 16}rem` } }), /* @__PURE__ */ React.createElement("span", null, ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i])))), /* @__PURE__ */ React.createElement("div", { className: "chart__result" }, /* @__PURE__ */ React.createElement("strong", null, "↗   38% more shares"), /* @__PURE__ */ React.createElement("p", null, "Product demo videos outperformed the average of the other formats analyzed.")), /* @__PURE__ */ React.createElement("small", null, "ⓘ   Conclusion limited to the uploaded set of 24 posts.")))), /* @__PURE__ */ React.createElement("section", { className: "cta container", "data-reveal": true }, /* @__PURE__ */ React.createElement("h2", null, "Ready to see what your website is missing?"), /* @__PURE__ */ React.createElement("a", { className: "button button--dark", href: "#analyze" }, "Start now ", /* @__PURE__ */ React.createElement(Arrow, null)))), /* @__PURE__ */ React.createElement("footer", null, /* @__PURE__ */ React.createElement("div", { className: "container footer" }, /* @__PURE__ */ React.createElement(Logo, null), /* @__PURE__ */ React.createElement("nav", null, /* @__PURE__ */ React.createElement("a", { href: "#process" }, "Process"), /* @__PURE__ */ React.createElement("a", { href: "#information" }, "Services"), /* @__PURE__ */ React.createElement("a", { href: "#analyze" }, "Demo")), /* @__PURE__ */ React.createElement("small", null, "© 2025 Market Fixer · Demo product"))));
+  )))), /* @__PURE__ */ React.createElement("section", { className: "services benchmarks", id: "information" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("h2", { "data-reveal": true }, "96.55% of pages get zero organic search traffic"), /* @__PURE__ */ React.createElement("div", { className: "benchmarks__card", "data-reveal": true }, /* @__PURE__ */ React.createElement("h3", null, "Why most sites stay invisible"), /* @__PURE__ */ React.createElement("div", { className: "benchmarks__chart" }, [
+    [96.55, "Pages with zero Google traffic"],
+    [96.6, "Google clicks going to Page 1 only"],
+    [68, "Small business sites lacking basic SEO"],
+    [55.6, "Small businesses with zero SEO budget"]
+  ].map(([value, label], index) => /* @__PURE__ */ React.createElement("div", { className: "benchmarks__item", key: label }, /* @__PURE__ */ React.createElement("div", { className: "benchmarks__track" }, /* @__PURE__ */ React.createElement("div", { className: "benchmarks__bar benchmarks__bar--" + index, style: { height: value + "%" } }, /* @__PURE__ */ React.createElement("strong", null, value.toFixed(2), "%"))), /* @__PURE__ */ React.createElement("p", null, label)))), /* @__PURE__ */ React.createElement("p", { className: "benchmarks__source" }, /* @__PURE__ */ React.createElement("img", { src: info, alt: "" }), "Ahrefs study of 1 Billion pages & Small Business Marketing Benchmarks")))), /* @__PURE__ */ React.createElement("section", { className: "cta container", "data-reveal": true }, /* @__PURE__ */ React.createElement("h2", null, "Ready to see what your website is missing?"), /* @__PURE__ */ React.createElement("a", { className: "button button--dark", href: "#analyze" }, "Start now ", /* @__PURE__ */ React.createElement(Arrow, null)))), /* @__PURE__ */ React.createElement("footer", null, /* @__PURE__ */ React.createElement("div", { className: "container footer" }, /* @__PURE__ */ React.createElement(Logo, null), /* @__PURE__ */ React.createElement("nav", null, /* @__PURE__ */ React.createElement("a", { href: "#process" }, "Process"), /* @__PURE__ */ React.createElement("a", { href: "#information" }, "Services"), /* @__PURE__ */ React.createElement("a", { href: "/?view=audit" }, "Reports")), /* @__PURE__ */ React.createElement("small", null, "© 2025 Market Fixer · Demo product"))));
 }
-clientExports.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+const query = new URLSearchParams(window.location.search);
+const isAudit = query.get("view") === "audit" || query.has("scan");
+clientExports.createRoot(document.getElementById("root")).render(isAudit ? /* @__PURE__ */ React.createElement(Audit, null) : /* @__PURE__ */ React.createElement(App, null));

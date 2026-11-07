@@ -14,6 +14,9 @@ import fileText from "./assets/file-text.svg";
 import ellipse4 from "./assets/ellipse4.svg";
 import ellipse5 from "./assets/ellipse5.svg";
 import "./sass/main.scss";
+import Audit from "./Audit";
+import info from "./assets/info.svg";
+import { request } from "./api";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
 function Logo() {
@@ -28,6 +31,8 @@ function Logo() {
 }
 function App() {
   const [url, setUrl] = useState("");
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState("");
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -55,9 +60,18 @@ function App() {
     });
     return () => observer.disconnect();
   }, []);
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
-    window.location.assign(`/audit.html?url=${encodeURIComponent(url.trim())}`);
+    if (starting) return;
+    setStarting(true);
+    setStartError("");
+    try {
+      const scan = await request('/scans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url.trim() }) });
+      window.location.assign(`/?view=audit&scan=${encodeURIComponent(scan.scanId)}`);
+    } catch (error) {
+      setStartError(error.message);
+      setStarting(false);
+    }
   }
   const areas = [
     ["01", "SEO & AEO", "Structure and visibility"],
@@ -128,11 +142,12 @@ function App() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                 />
-                <button className="button button--green" type="submit">
-                  Start analysis <Arrow />
+                <button className="button button--green" type="submit" disabled={starting}>
+                  {starting ? 'Starting…' : 'Start analysis'} <Arrow />
                 </button>
               </div>
             </form>
+            {startError && <p className="audit-error" role="alert">{startError}</p>}
             <small>
               ♧ &nbsp; We only scan public pages. No card. No account access.
             </small>
@@ -246,54 +261,25 @@ function App() {
             </div>
           </div>
         </section>
-        <section className="services" id="information">
-          <div className="container services__grid">
-            <div data-reveal>
-              <h2>
-                Everything that affects how people find and understand you.
-              </h2>
-              <p>
-                We review your online presence as a whole: technical, human, and
-                grounded in evidence.
-              </p>
-              <ul>
+        <section className="services benchmarks" id="information">
+          <div className="container">
+            <h2 data-reveal>96.55% of pages get zero organic search traffic</h2>
+            <div className="benchmarks__card" data-reveal>
+              <h3>Why most sites stay invisible</h3>
+              <div className="benchmarks__chart">
                 {[
-                  "Technical SEO audit and AEO readiness",
-                  "Accessibility and mobile experience",
-                  "Content clarity and originality",
-                  "Campaign analysis based on uploaded data",
-                ].map((x) => (
-                  <li key={x}>
-                    <span>✓</span>
-                    {x}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="chart" data-reveal>
-              <div className="chart__heading">
-                What resonated with your audience? <span>Example</span>
-              </div>
-              <div className="chart__bars">
-                {[79, 128, 93, 147, 109, 140, 100].map((h, i) => (
-                  <div key={i}>
-                    <i style={{ height: `${h / 16}rem` }} />
-                    <span>
-                      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
-                    </span>
+                  [96.55, "Pages with zero Google traffic"],
+                  [96.60, "Google clicks going to Page 1 only"],
+                  [68, "Small business sites lacking basic SEO"],
+                  [55.60, "Small businesses with zero SEO budget"],
+                ].map(([value, label], index) => (
+                  <div className="benchmarks__item" key={label}>
+                    <div className="benchmarks__track"><div className={'benchmarks__bar benchmarks__bar--' + index} style={{height: value + '%'}}><strong>{value.toFixed(2)}%</strong></div></div>
+                    <p>{label}</p>
                   </div>
                 ))}
               </div>
-              <div className="chart__result">
-                <strong>↗ &nbsp; 38% more shares</strong>
-                <p>
-                  Product demo videos outperformed the average of the other
-                  formats analyzed.
-                </p>
-              </div>
-              <small>
-                ⓘ &nbsp; Conclusion limited to the uploaded set of 24 posts.
-              </small>
+              <p className="benchmarks__source"><img src={info} alt="" />Ahrefs study of 1 Billion pages &amp; Small Business Marketing Benchmarks</p>
             </div>
           </div>
         </section>
@@ -310,7 +296,7 @@ function App() {
           <nav>
             <a href="#process">Process</a>
             <a href="#information">Services</a>
-            <a href="#analyze">Demo</a>
+            <a href="/?view=audit">Reports</a>
           </nav>
           <small>© 2025 Market Fixer · Demo product</small>
         </div>
@@ -319,4 +305,6 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root")).render(<App />);
+const query = new URLSearchParams(window.location.search);
+const isAudit = query.get("view") === "audit" || query.has("scan");
+createRoot(document.getElementById("root")).render(isAudit ? <Audit /> : <App />);

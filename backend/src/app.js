@@ -7,6 +7,7 @@ import { createDb } from './db/index.js';
 import { createScanQueue } from './jobs/queue.js';
 import { crawlSite as defaultCrawlSite } from './crawler/index.js';
 import { createScansRouter } from './routes/scans.js';
+import { resolveApiKey } from './ai/llm.js';
 
 const PUBLIC_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
@@ -28,7 +29,7 @@ async function defaultRunLighthouse(url) {
 const lighthouseEnabled = process.env.LIGHTHOUSE_ENABLED !== 'false';
 const contentAiEnabled =
   process.env.CONTENT_AI_ENABLED !== 'false' &&
-  Boolean(process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY);
+  Boolean(resolveApiKey());
 
 export function createApp({
   db: providedDb,

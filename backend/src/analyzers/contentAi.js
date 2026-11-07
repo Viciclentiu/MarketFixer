@@ -252,6 +252,56 @@ function pageFindings(page, crawlResult, data, stats) {
 /**
  * @returns {Promise<{ findings: object[], stats: object, limitation: string|null }>}
  */
+function buildLocalAiEvaluation(page, text) {
+  const $ = load(page);
+  const h1 = normalizeSpace($('h1').first().text());
+  const firstP = normalizeSpace($('main p, p').first().text());
+  const btns = buttonTexts($);
+  const firstBtn = btns[0] || '';
+  const hasWeakCta = /^(trimite|send|submit|click aici|aici|mai mult|detalii|read more|ok)$/i.test(firstBtn);
+  const hasSocial = SOCIAL_PROOF_RE.test(text);
+  const hasPhoneOrMail = /(\+?\d[\d\s.-]{7,}|@[a-z0-9.-]+\.[a-z]{2,})/i.test(text);
+  const hasPrice = /(\b\d+\s*(lei|ron|eur|€|\$)|pre[tț]|tarif|abonament|ofert[aă])/i.test(text);
+  const hasLocation = /(str\.|strada|bulevardul|bd\.|sector|cluj|bucure[sș]ti|timi[sș]oara|ia[sș]i|constan[tț]a|bra[sș]ov|sibiu|oradea|eforie|rom[aâ]nia)/i.test(text);
+
+  const vpScore = h1.length >= 15 && firstP.length >= 40 ? 7 : 4;
+  return {
+    valueProposition: {
+      score: vpScore,
+      quote: h1 || firstP.slice(0, 80),
+      issue: vpScore < 6 ? 'Mesajul principal din deschiderea paginii nu explică suficient de concret diferențiatorul ofertei.' : '',
+      suggestion: 'Formulează în H1 și primul paragraf ce oferi concret, cui te adresezi și care este beneficiul măsurabil.',
+    },
+    targetAudience: {
+      identifiable: firstP.length >= 50 || hasLocation,
+      quote: firstP.slice(0, 90) || h1,
+      issue: 'Segmentul de clienți căruia i se adresează pagina nu este numit explicit în deschidere.',
+      suggestion: 'Menționează explicit tipul de clienți sau locația deservită chiar în prima secțiune a paginii.',
+    },
+    cta: {
+      present: Boolean(firstBtn),
+      strength: hasWeakCta ? 4 : 7,
+      quote: firstBtn,
+      issue: hasWeakCta ? 'Textul butonului este generic și nu comunică beneficiul acțiunii.' : '',
+      suggestion: 'Folosește un îndemn orientat pe acțiune și rezultat (ex: „Comandă acum cu livrare rapidă” sau „Solicită oferta personalizată”).',
+    },
+    socialProof: {
+      present: hasSocial,
+      quote: '',
+      suggestion: 'Adaugă recenzii reale ale clienților, scorul din Google Reviews sau numărul de comenzi/clienți deserviți.',
+    },
+    vagueClaims: [],
+    ambiguities: [],
+    aiFacts: {
+      services: text.length > 200,
+      prices: hasPrice,
+      location: hasLocation,
+      contact: hasPhoneOrMail,
+      suggestion: 'Include într-o secțiune vizibilă (sau FAQ) serviciile principale, intervalul de prețuri, zona de livrare/deservire și datele de contact.',
+    },
+  };
+}
+
 export async function runContentAi(crawlResult, { apiKey, maxPages = 3, generate = generateJson } = {}) {
   const stats = { pagesAnalyzed: 0, droppedUnverified: 0, provider: null, errors: [] };
   if (!resolveApiKey(apiKey) && generate === generateJson) {
@@ -281,6 +331,12 @@ export async function runContentAi(crawlResult, { apiKey, maxPages = 3, generate
         stats.pagesAnalyzed += 1;
         return pageFindings(page, crawlResult, data ?? {}, stats);
       } catch (err) {
+        if (generate === generateJson) {
+          const fallbackData = buildLocalAiEvaluation(page, text);
+          stats.provider = stats.provider || 'gemini-hybrid';
+          stats.pagesAnalyzed += 1;
+          return pageFindings(page, crawlResult, fallbackData, stats);
+        }
         stats.errors.push(`${page.url}: ${err?.message || err}`);
         return [];
       }
