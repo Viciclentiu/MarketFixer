@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MarketFixer — Test Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --critical: #ef4444;
+      --high: #f97316;
+      --medium: #eab308;
+      --low: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { margin: 0 0 4px; font-size: 26px; }
+    .subtitle { color: var(--muted); margin-bottom: 20px; font-size: 14px; }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    input[type="text"], input[type="number"], select {
+      background: #0b1120;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    input[type="text"] { flex: 1; min-width: 260px; }
+    input[type="number"] { width: 90px; }
+    button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.secondary {
+      background: #334155;
+      color: var(--text);
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .score-card {
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .score-val { font-size: 28px; font-weight: 800; }
+    .score-label { font-size: 12px; color: var(--muted); text-transform: uppercase; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .sev-critical { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid var(--critical); }
+    .sev-high { background: rgba(249,115,22,0.2); color: #fdba74; border: 1px solid var(--high); }
+    .sev-medium { background: rgba(234,179,8,0.2); color: #fde047; border: 1px solid var(--medium); }
+    .sev-low { background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid var(--low); }
+    .finding {
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .finding-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .evidence {
+      background: #111827;
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    code {
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      color: #bae6fd;
+      word-break: break-all;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>MarketFixer — Test UI</h1>
+    <div class="subtitle">Pagină rapidă de test pentru Crawler, Motorul de Analiză (SEO, Tehnic, Accesibilitate, UX, Conținut, AI Search) și CSV Performanță.</div>
+
+    <!-- Formular Scanare -->
+    <div class="panel">
+      <div class="row">
+        <input type="text" id="urlInput" placeholder="https://example.com" value="https://example.com" />
+        <label class="muted">Max pagini:</label>
+        <input type="number" id="maxPagesInput" value="5" min="1" max="50" />
+        <button id="scanBtn" onclick="startScan()">Scanează site-ul</button>
+        <button class="secondary" onclick="loadHistory()">Reîncarcă istoricul</button>
+      </div>
+      <div id="statusBox" class="muted" style="margin-top: 10px;">Status: pregătit.</div>
+    </div>
+
+    <!-- Rezultate Raport -->
+    <div id="reportSection" style="display: none;">
+      <div class="scores" id="scoresGrid"></div>
+
+      <!-- Upload CSV Performanță -->
+      <div class="panel">
+        <strong>Analiză de performanță (Upload CSV manual)</strong>
+        <p class="muted" style="margin: 4px 0 10px;">Încarcă un CSV cu metrici (ex: <code>type,views,shares,clicks</code>) pentru a atașa concluzii bazate pe date reale la acest raport.</p>
+        <div class="row">
+          <input type="file" id="csvInput" accept=".csv" />
+          <button class="secondary" onclick="uploadCsv()">Analizează CSV</button>
+        </div>
+        <div id="perfOutput" style="margin-top: 10px;"></div>
+      </div>
+
+      <!-- Filtre Constatări -->
+      <div class="panel">
+        <div class="row" style="margin-bottom: 12px;">
+          <strong>Probleme identificate (<span id="findingsCount">0</span>)</strong>
+          <select id="catFilter" onchange="renderFindings()">
+            <option value="all">Toate categoriile</option>
+            <option value="seo">SEO</option>
+            <option value="technical">Tehnic</option>
+            <option value="accessibility">Accesibilitate</option>
+            <option value="ux">UX</option>
+            <option value="content">Conținut</option>
+            <option value="ai_search">AI Search</option>
+          </select>
+          <select id="sevFilter" onchange="renderFindings()">
+            <option value="all">Toate severitățile</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div id="findingsList"></div>
+      </div>
+
+      <div class="panel">
+        <strong>Limitări asumate ale scanării publice</strong>
+        <ul id="limitationsList" class="muted"></ul>
+      </div>
+    </div>
+
+    <!-- Istoric și Comparare -->
+    <div class="panel">
+      <strong>Istoric scanări recente</strong>
+      <div id="historyList" class="muted" style="margin-top: 8px;">Se încarcă...</div>
+      <div id="compareOutput" style="margin-top: 12px;"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentScanId = null;
+    let currentReport = null;
+    let pollTimer = null;
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    async function startScan() {
+      const url = document.getElementById('urlInput').value.trim();
+      const maxPages = Number(document.getElementById('maxPagesInput').value) || 5;
+      const btn = document.getElementById('scanBtn');
+      const statusBox = document.getElementById('statusBox');
+
+      if (!url) return alert('Introdu un URL!');
+      btn.disabled = true;
+      statusBox.textContent = 'Se pornește scanarea...';
+
+      try {
+        const res = await fetch('/api/scans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, maxPages }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Eroare la pornirea scanării');
+
+        currentScanId = data.scanId;
+        statusBox.textContent = `Scanare pornită (ID: ${currentScanId}) — status: ${data.status}`;
+        pollStatus(currentScanId);
+      } catch (err) {
+        statusBox.textContent = `Eroare: ${err.message}`;
+        btn.disabled = false;
+      }
+    }
+
+    async function pollStatus(scanId) {
+      clearTimeout(pollTimer);
+      try {
+        const res = await fetch(`/api/scans/${scanId}`);
+        const scan = await res.json();
+        const prog = scan.progress ? ` (${scan.progress.phase}: ${scan.progress.done}/${scan.progress.total})` : '';
+        document.getElementById('statusBox').textContent = `Status [${scan.scanId}]: ${scan.status}${prog}`;
+
+        if (scan.status === 'done') {
+          document.getElementById('scanBtn').disabled = false;
+          await loadReport(scanId);
+          await loadHistory();
+        } else if (scan.status === 'failed') {
+          document.getElementById('scanBtn').disabled = false;
+          document.getElementById('statusBox').textContent = `Scanare eșuată: ${scan.error || 'eroare necunoscută'}`;
+          await loadHistory();
+        } else {
+          pollTimer = setTimeout(() => pollStatus(scanId), 1000);
+        }
+      } catch (err) {
+        document.getElementById('scanBtn').disabled = false;
+        document.getElementById('statusBox').textContent = `Eroare polling: ${err.message}`;
+      }
+    }
+
+    async function loadReport(scanId) {
+      currentScanId = scanId;
+      const res = await fetch(`/api/scans/${scanId}/report`);
+      if (!res.ok) return alert('Raportul nu este încă disponibil.');
+      currentReport = await res.json();
+
+      document.getElementById('reportSection').style.display = 'block';
+      const s = currentReport.scores || {};
+      document.getElementById('scoresGrid').innerHTML = [
+        ['Scor General', s.overall],
+        ['SEO', s.seo],
+        ['Accesibilitate', s.accessibility],
+        ['UX & Navigare', s.ux],
+        ['Conținut', s.content],
+        ['Pagini analizate', currentReport.pagesAnalyzed],
+      ]
+        .map(
+          ([label, val]) => `
+        <div class="score-card">
+          <div class="score-val">${val ?? '-'}</div>
+          <div class="score-label">${label}</div>
+        </div>`
+        )
+        .join('');
+
+      document.getElementById('limitationsList').innerHTML = (currentReport.limitations || [])
+        .map((l) => `<li>${esc(l)}</li>`)
+        .join('');
+
+      if (currentReport.performance) {
+        renderPerformance(currentReport.performance);
+      } else {
+        document.getElementById('perfOutput').innerHTML = '';
+      }
+
+      renderFindings();
+    }
+
+    function renderFindings() {
+      if (!currentReport) return;
+      const cat = document.getElementById('catFilter').value;
+      const sev = document.getElementById('sevFilter').value;
+
+      const list = (currentReport.findings || []).filter((f) => {
+        if (cat !== 'all' && f.category !== cat) return false;
+        if (sev !== 'all' && f.severity !== sev) return false;
+        return true;
+      });
+
+      document.getElementById('findingsCount').textContent = list.length;
+      document.getElementById('findingsList').innerHTML =
+        list
+          .map(
+            (f) => `
+        <div class="finding">
+          <div class="finding-header">
+            <div>
+              <span class="badge sev-${esc(f.severity)}">${esc(f.severity)}</span>
+              <span class="badge" style="background:#334155;">${esc(f.category)}</span>
+              <strong style="margin-left:6px;">${esc(f.title)}</strong>
+            </div>
+            <span class="muted">Efort: ${esc(f.effort)} | <code>${esc(f.ruleId)}</code></span>
+          </div>
+          ${f.pageUrl ? `<div class="muted">Pagină: <code>${esc(f.pageUrl)}</code></div>` : ''}
+          <div class="evidence">
+            <div><strong>Dovadă:</strong> ${esc(f.evidence?.summary)}</div>
+            ${f.evidence?.snippet ? `<div><code>${esc(f.evidence.snippet)}</code></div>` : ''}
+            ${f.evidence?.expected ? `<div class="muted">Așteptat: ${esc(f.evidence.expected)}</div>` : ''}
+          </div>
+          <div><strong>De ce contează:</strong> ${esc(f.whyItMatters)}</div>
+          <div style="margin-top:4px; color:#bae6fd;"><strong>Recomandare:</strong> ${esc(f.recommendation)}</div>
+        </div>`
+          )
+          .join('') || '<div class="muted">Nicio problemă pe filtrele selectate.</div>';
+    }
+
+    async function uploadCsv() {
+      if (!currentScanId) return alert('Rulează sau selectează întâi o scanare!');
+      const fileInput = document.getElementById('csvInput');
+      if (!fileInput.files.length) return alert('Alege un fișier CSV!');
+
+      const form = new FormData();
+      form.append('file', fileInput.files[0]);
+
+      const res = await fetch(`/api/scans/${currentScanId}/performance`, {
+        method: 'POST',
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Eroare la analiza CSV');
+      renderPerformance(data);
+    }
+
+    function renderPerformance(perf) {
+      const insightsHtml = (perf.insights || [])
+        .map(
+          (ins) => `
+        <div class="evidence">
+          <div><strong>${esc(ins.statement)}</strong> <span class="badge" style="background:#334155;">încredere: ${esc(ins.confidence)}</span></div>
+          ${ins.caveat ? `<div class="muted">⚠️ ${esc(ins.caveat)}</div>` : ''}
+        </div>`
+        )
+        .join('');
+      document.getElementById('perfOutput').innerHTML = `
+        <div class="muted">Rânduri procesate: ${perf.rowCount}</div>
+        ${insightsHtml || '<div class="muted">Nu s-au putut extrage comparații între grupuri.</div>'}
+      `;
+    }
+
+    async function loadHistory() {
+      const res = await fetch('/api/scans');
+      const scans = await res.json();
+      const box = document.getElementById('historyList');
+      if (!Array.isArray(scans) || !scans.length) {
+        box.textContent = 'Nicio scanare înregistrată încă.';
+        return;
+      }
+      box.innerHTML = scans
+        .map(
+          (s) => `
+        <div class="history-item">
+          <div>
+            <strong>${esc(s.url)}</strong> — <span class="muted">${esc(s.status)} (${esc(s.createdAt)})</span>
+          </div>
+          <div class="row">
+            ${s.status === 'done' ? `<button class="secondary" onclick="loadReport('${esc(s.scanId)}')">Vezi raport</button>` : ''}
+            ${
+              s.status === 'done' && currentScanId && currentScanId !== s.scanId
+                ? `<button class="secondary" onclick="compareWith('${esc(s.scanId)}')">Compară cu scanarea curentă</button>`
+                : ''
+            }
+          </div>
+        </div>`
+        )
+        .join('');
+    }
+
+    async function compareWith(prevId) {
+      if (!currentScanId) return;
+      const res = await fetch(`/api/scans/${currentScanId}/compare/${prevId}`);
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Eroare la comparare');
+      document.getElementById('compareOutput').innerHTML = `
+        <div class="evidence">
+          <strong>Comparare (${esc(currentScanId)} vs ${esc(prevId)}):</strong><br/>
+          ✅ Rezolvate: <strong>${data.resolved?.length ?? 0}</strong> |
+          🆕 Noi: <strong>${data.new?.length ?? 0}</strong> |
+          ⏳ Rămase: <strong>${data.remaining?.length ?? 0}</strong> |
+          Δ Scor general: <strong>${data.scoreDelta?.overall ?? 0}</strong>
+        </div>
+      `;
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>
