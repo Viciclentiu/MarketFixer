@@ -1,10 +1,12 @@
 import { defineConfig } from "vite";
+const isVercel = process.env.VERCEL === "1";
+
 export default defineConfig({
   build: {
     minify: false,
     cssMinify: false,
-    outDir: "../backend/public",
-    emptyOutDir: false,
+    outDir: isVercel ? "dist" : "../backend/public",
+    emptyOutDir: isVercel,
     rollupOptions: {
       input: { main: 'index.html', audit: 'audit.html' },
     },
