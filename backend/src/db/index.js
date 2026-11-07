@@ -50,6 +50,8 @@ function normalizeFilterUrl(url) {
 function createMemoryStore() {
   const scans = new Map();
   const reports = new Map();
+  const snapshots = new Map();
+  const fixes = new Map();
 
   return {
     backend: 'memory',
@@ -116,6 +118,25 @@ function createMemoryStore() {
       return structuredClone(r);
     },
 
+    saveSnapshot(scanId, crawlResult) {
+      snapshots.set(scanId, structuredClone(crawlResult));
+    },
+
+    getSnapshot(scanId) {
+      const s = snapshots.get(scanId);
+      return s ? structuredClone(s) : null;
+    },
+
+    saveFixes(scanId, fixesResult) {
+      fixes.set(scanId, structuredClone(fixesResult));
+      return fixesResult;
+    },
+
+    getFixes(scanId) {
+      const f = fixes.get(scanId);
+      return f ? structuredClone(f) : null;
+    },
+
     close() {},
   };
 }
@@ -145,6 +166,18 @@ function createSqliteStore(dbPath) {
       updated_at TEXT NOT NULL,
       FOREIGN KEY (scan_id) REFERENCES scans(id) ON DELETE CASCADE
     );
+    CREATE TABLE IF NOT EXISTS snapshots (
+      scan_id TEXT PRIMARY KEY,
+      snapshot_json TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (scan_id) REFERENCES scans(id) ON DELETE CASCADE
+    );
+    CREATE TABLE IF NOT EXISTS fixes (
+      scan_id TEXT PRIMARY KEY,
+      fixes_json TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (scan_id) REFERENCES scans(id) ON DELETE CASCADE
+    );
   `);
 
   const insertScanStmt = db.prepare(`
@@ -164,6 +197,22 @@ function createSqliteStore(dbPath) {
       updated_at = excluded.updated_at
   `);
   const getReportStmt = db.prepare(`SELECT report_json FROM reports WHERE scan_id = ?`);
+  const upsertSnapshotStmt = db.prepare(`
+    INSERT INTO snapshots (scan_id, snapshot_json, updated_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(scan_id) DO UPDATE SET
+      snapshot_json = excluded.snapshot_json,
+      updated_at = excluded.updated_at
+  `);
+  const getSnapshotStmt = db.prepare(`SELECT snapshot_json FROM snapshots WHERE scan_id = ?`);
+  const upsertFixesStmt = db.prepare(`
+    INSERT INTO fixes (scan_id, fixes_json, updated_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(scan_id) DO UPDATE SET
+      fixes_json = excluded.fixes_json,
+      updated_at = excluded.updated_at
+  `);
+  const getFixesStmt = db.prepare(`SELECT fixes_json FROM fixes WHERE scan_id = ?`);
 
   return {
     backend: 'sqlite',
@@ -230,6 +279,29 @@ function createSqliteStore(dbPath) {
       const updated = { ...existing, performance: performanceResult };
       this.saveReport(scanId, updated);
       return updated;
+    },
+
+    saveSnapshot(scanId, crawlResult) {
+      const now = new Date().toISOString();
+      upsertSnapshotStmt.run(scanId, JSON.stringify(crawlResult), now);
+    },
+
+    getSnapshot(scanId) {
+      const row = getSnapshotStmt.get(scanId);
+      if (!row) return null;
+      return JSON.parse(row.snapshot_json);
+    },
+
+    saveFixes(scanId, fixesResult) {
+      const now = new Date().toISOString();
+      upsertFixesStmt.run(scanId, JSON.stringify(fixesResult), now);
+      return fixesResult;
+    },
+
+    getFixes(scanId) {
+      const row = getFixesStmt.get(scanId);
+      if (!row) return null;
+      return JSON.parse(row.fixes_json);
     },
 
     close() {

@@ -1,4 +1,4 @@
-// Rutele REST pentru scanări, rapoarte, comparare și upload CSV de performanță.
+// Rutele REST pentru scanări, rapoarte, comparare, upload CSV și Overwrite / Auto-Fix.
 import express from 'express';
 import multer from 'multer';
 import { parse as parseCsv } from 'csv-parse/sync';
@@ -10,6 +10,8 @@ import {
   assertPublicUrl,
 } from '../crawler/index.js';
 import { compareReports } from '../compare.js';
+import { remediateSite } from '../remediator/index.js';
+import { buildZipBuffer } from '../remediator/zip.js';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -22,6 +24,7 @@ const upload = multer({
 export function createScansRouter({
   db,
   queue,
+  analyzeSite,
   analyzePerformance,
   allowPrivate = false,
   skipDnsCheck = false,
@@ -100,6 +103,115 @@ export function createScansRouter({
       return res.status(404).json({ error: 'Raportul nu este disponibil încă.' });
     }
     return res.json(report);
+  });
+
+  // POST /api/scans/:id/remediate -> Generează fișierele rescrise cu Gemini/OpenAI + Cheerio
+  router.post('/:id/remediate', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const report = db.getReport(id);
+      if (!report) {
+        return res.status(404).json({ error: 'Raportul scanării nu este încă disponibil.' });
+      }
+      const snapshot =
+        (typeof db.getSnapshot === 'function' ? db.getSnapshot(id) : null) || {
+          site: { rootUrl: report.url, origin: new URL(report.url).origin },
+          pages: [
+            {
+              url: report.url,
+              requestedUrl: report.url,
+              status: 200,
+              contentType: 'text/html',
+              html: `<!DOCTYPE html><html><head><title></title></head><body><h1>${report.url}</h1></body></html>`,
+              depth: 0,
+              loadMs: 100,
+              sizeBytes: 120,
+              redirectChain: [],
+              links: [],
+            },
+          ],
+        };
+
+      const apiKey = req.body?.apiKey || process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+      const result = await remediateSite(snapshot, report, { analyzeSite, apiKey });
+      if (typeof db.saveFixes === 'function') {
+        db.saveFixes(id, result);
+      }
+      return res.json(result);
+    } catch (err) {
+      return res.status(500).json({ error: err?.message || 'Eroare la generarea fișierelor reparate.' });
+    }
+  });
+
+  // GET /api/scans/:id/fixes -> Returnează pachetul de fișiere reparate deja generat
+  router.get('/:id/fixes', (req, res) => {
+    const fixes = typeof db.getFixes === 'function' ? db.getFixes(req.params.id) : null;
+    if (!fixes) {
+      return res.status(404).json({ error: 'Fișierele reparate nu au fost încă generate pentru această scanare.' });
+    }
+    return res.json(fixes);
+  });
+
+  // GET /api/scans/:id/fixes/download-all -> Descarcă tot directorul cu fișierele reparate ca arhivă .zip
+  router.get('/:id/fixes/download-all', (req, res) => {
+    const fixes = typeof db.getFixes === 'function' ? db.getFixes(req.params.id) : null;
+    if (!fixes || !Array.isArray(fixes.files)) {
+      return res.status(404).json({ error: 'Generează întâi fișierele reparate.' });
+    }
+    let host = 'site';
+    try {
+      host = new URL(fixes.url).hostname.replace(/^www\./, '').replace(/[^a-zA-Z0-9.-]/g, '_');
+    } catch {
+      host = 'site';
+    }
+    const folderName = `marketfixer-${host}`;
+    const zipBuf = buildZipBuffer(fixes.files, folderName);
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${folderName}.zip"`);
+    return res.send(zipBuf);
+  });
+
+  // GET /api/scans/:id/fixes/download?path=index.html -> Descarcă un fișier individual
+  router.get('/:id/fixes/download', (req, res) => {
+    const fixes = typeof db.getFixes === 'function' ? db.getFixes(req.params.id) : null;
+    if (!fixes) {
+      return res.status(404).json({ error: 'Generează întâi fișierele reparate.' });
+    }
+    const targetPath = req.query.path || 'index.html';
+    const file = (fixes.files || []).find((f) => f.path === targetPath);
+    if (!file) {
+      return res.status(404).json({ error: `Fișierul ${targetPath} nu a fost găsit.` });
+    }
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${file.path.replace(/[^a-zA-Z0-9._-]/g, '_')}"`);
+    return res.send(file.fixedContent);
+  });
+
+  // GET /api/scans/:id/fixes/preview -> Randează în browser site-ul public cu reparațiile aplicate live
+  router.get('/:id/fixes/preview', (req, res) => {
+    const fixes = typeof db.getFixes === 'function' ? db.getFixes(req.params.id) : null;
+    if (!fixes) {
+      return res.status(404).send('Generează întâi fișierele reparate.');
+    }
+    const htmlFile = (fixes.files || []).find((f) => f.type === 'html') || fixes.files?.[0];
+    const cssFile = (fixes.files || []).find((f) => f.path === 'marketfixer-fixes.css');
+    const jsFile = (fixes.files || []).find((f) => f.path === 'marketfixer-patch.js');
+    if (!htmlFile) {
+      return res.status(404).send('Nu există fișier HTML de previzualizat.');
+    }
+
+    let previewHtml = htmlFile.fixedContent;
+    const baseTag = `<base href="${fixes.url}">`;
+    const inlineCss = cssFile ? `<style>${cssFile.fixedContent}</style>` : '';
+    const inlineJs = jsFile ? `<script>${jsFile.fixedContent}</script>` : '';
+
+    previewHtml = previewHtml
+      .replace('<link rel="stylesheet" href="marketfixer-fixes.css">', inlineCss)
+      .replace('<script src="marketfixer-patch.js" defer></script>', inlineJs)
+      .replace(/<head([^>]*)>/i, `<head$1>${baseTag}`);
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(previewHtml);
   });
 
   // POST /api/scans/:id/performance -> PerformanceResult (salvat și în raport)
