@@ -1,0 +1,201 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.hero {
+  min-height: $size-692;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: $size-40;
+  overflow: hidden;
+}
+.hero__cursors {
+  position: absolute;
+  top: -$size-56;
+  left: $size-68;
+  width: $size-607;
+  pointer-events: none;
+}
+.hero__content {
+  z-index: 1;
+}
+.hero h1 {
+  font-size: $size-60;
+  line-height: 1.08;
+  letter-spacing: -$size-2-7;
+}
+.hero h1 em {
+  color: $green;
+  font-weight: 600;
+}
+.hero__content > p {
+  font-size: $size-20;
+  line-height: 1.7;
+  max-width: $size-528;
+  margin: $size-28 0;
+}
+.hero label {
+  display: block;
+  font-size: $size-16;
+  font-weight: 600;
+  margin-bottom: $size-12;
+}
+.hero__input-box {
+  display: flex;
+  align-items: center;
+  border: $size-2 solid $mint;
+  padding: $size-5;
+  gap: $size-14;
+  max-width: $size-516;
+}
+.hero__input-box > span {
+  padding-left: $size-12;
+}
+.hero__input-box input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: $ink;
+  font-size: $size-21;
+}
+.hero__input-box input::placeholder {
+  color: #7c8880;
+}
+.hero small {
+  display: block;
+  font-size: $size-16;
+  margin-top: $size-11;
+}
+.hero__art {
+  height: $size-551;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero__orbit {
+  position: absolute;
+  border: $size-1 solid #849b8a;
+  border-radius: 50%;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: $size-551;
+}
+.hero__mock-browser {
+  height: $size-430;
+  width: $size-475;
+  max-width: 90%;
+  background: $mint;
+  transform: rotate(1.5deg);
+  position: relative;
+  overflow: hidden;
+}
+.hero__browser-top {
+  height: $size-36;
+  background: $paper;
+  color: #a1caaa;
+  font-size: $size-12;
+  padding: $size-10 $size-18;
+}
+.hero__browser-top i {
+  display: inline-block;
+  background: $mint;
+  width: 55%;
+  height: $size-13;
+  border-radius: $size-20;
+  margin-left: $size-20;
+}
+.hero__mock-lines {
+  position: absolute;
+  top: $size-172;
+  left: $size-38;
+}
+.hero__mock-lines b {
+  display: block;
+  background: $dark;
+  height: $size-12;
+  width: $size-136;
+  margin-bottom: $size-8;
+}
+.hero__mock-lines b:nth-child(2) {
+  width: $size-103;
+}
+.hero__mock-lines b:nth-child(3) {
+  width: $size-55;
+  height: $size-7;
+  margin-top: $size-22;
+}
+.hero__score {
+  position: absolute;
+  background: $dark;
+  color: $paper;
+  font-size: $size-15;
+  padding: $size-10;
+}
+.hero__score strong {
+  color: #c3edbd;
+}
+.hero__score--seo {
+  top: $size-116;
+  left: $size-14;
+}
+.hero__score--accessibility {
+  top: $size-212;
+  right: 0;
+}
+.hero__score--clarity {
+  bottom: $size-29;
+  left: $size-120;
+}
+.hero__bars {
+  position: absolute;
+  right: $size-50;
+  bottom: -$size-6;
+  font-size: $size-70;
+}
+.hero__opportunity,
+.hero__overall {
+  position: absolute;
+  background: $paper;
+  box-shadow: 0 $size-18 $size-40 #344b4026;
+  font-size: $size-16;
+}
+.hero__opportunity {
+  right: 0;
+  top: $size-35;
+  width: $size-230;
+  padding: $size-17;
+}
+.hero__opportunity strong,
+.hero__overall strong {
+  display: block;
+  margin-top: $size-7;
+}
+.hero__overall {
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: $size-14;
+  padding: $size-15;
+  width: $size-278;
+}
+.hero__overall > span {
+  border: $size-2 solid #7aff7a;
+  color: #20c520;
+  border-radius: 50%;
+  width: $size-49;
+  height: $size-49;
+  display: grid;
+  place-items: center;
+}
+.hero__overall div {
+  color: $green;
+}
+.hero__overall strong {
+  color: $ink;
+  font-size: $size-15;
+}

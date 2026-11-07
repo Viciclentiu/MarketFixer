@@ -1,0 +1,73 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.header {
+  border-bottom: $size-1 solid #b9debd;
+}
+.navigation {
+  height: $size-75;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  font-size: $size-30;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.logo span {
+  color: $green;
+  margin-left: $size-5;
+}
+.logo img {
+  width: $size-32;
+  height: $size-32;
+  margin-left: $size-12;
+}
+.navigation nav,
+.footer nav {
+  display: flex;
+  gap: $size-54;
+  font-weight: 600;
+  font-size: $size-21;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $size-16;
+  border: 0;
+  color: $paper;
+  font-weight: 600;
+  font-size: $size-18;
+  padding: $size-16 $size-20;
+  min-height: $size-54;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.button span {
+  font-size: $size-22;
+  line-height: 1;
+}
+.button--dark {
+  background: $dark;
+}
+.button--green {
+  background: $green;
+}
+.button:hover {
+  filter: brightness(0.9);
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1,
+h2 {
+  font-family: Barlow, sans-serif;
+  font-weight: 500;
+}

@@ -1,0 +1,30 @@
+@use "sizes" as *;
+@use "colors" as *;
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: $paper;
+  color: $ink;
+  font:
+    $size-20 "Barlow Semi Condensed",
+    sans-serif;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button,
+input {
+  font: inherit;
+}
+.container {
+  max-width: $size-1280;
+  margin: auto;
+  padding-inline: $size-72;
+}

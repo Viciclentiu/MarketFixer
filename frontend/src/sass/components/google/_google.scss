@@ -1,0 +1,38 @@
+@use "../../global/sizes" as *;
+@use "../../global/colors" as *;
+
+.google {
+  padding: $size-60 $size-30;
+}
+.google__inner {
+  max-width: $size-980;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: $size-38;
+}
+.google__tile {
+  width: $size-96;
+  height: $size-96;
+  border: $size-1 solid $mint;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.google__tile img {
+  width: $size-56;
+  height: $size-56;
+}
+.google__inner h2 {
+  font-size: $size-36;
+  line-height: 1.12;
+}
+.google__inner a {
+  display: inline-block;
+  font-size: $size-18;
+  font-weight: 600;
+  margin-top: $size-20;
+}
+.google__inner a span {
+  margin-left: $size-15;
+}
