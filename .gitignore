@@ -151,3 +151,6 @@ vite.config.ts.timestamp-*
 # Python bytecode from previously generated files
 __pycache__/
 *.py[cod]
+
+# Local SQLite database
+backend/data/
