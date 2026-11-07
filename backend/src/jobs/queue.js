@@ -5,6 +5,8 @@ export function createScanQueue({
   db,
   crawlSite = defaultCrawlSite,
   analyzeSite,
+  runLighthouse = null,
+  contentAi = false,
   concurrency = 2,
   crawlOptions = {},
 } = {}) {
@@ -53,13 +55,34 @@ export function createScanQueue({
         throw new Error('Nu s-a putut descărca nicio pagină de la URL-ul specificat.');
       }
 
+      if (typeof db.saveSnapshot === 'function') {
+        db.saveSnapshot(scanId, crawlResult);
+      }
+
       const pagesCount = crawlResult.pages.length;
+
+      // Google Lighthouse pe pagina principală (browser real). Nu blochează scanarea dacă eșuează.
+      let lighthouse = null;
+      if (typeof runLighthouse === 'function') {
+        db.updateScan(scanId, {
+          status: 'analyzing',
+          progress: { phase: 'lighthouse', done: 0, total: 1 },
+        });
+        try {
+          lighthouse = await runLighthouse(crawlResult.site?.rootUrl ?? url);
+        } catch (err) {
+          lighthouse = { available: false, error: err?.message || String(err) };
+        }
+      }
+
       db.updateScan(scanId, {
         status: 'analyzing',
         progress: { phase: 'analyzing', done: 0, total: pagesCount },
       });
 
       const analysisResult = await analyzeSite(crawlResult, {
+        lighthouse,
+        contentAi,
         onProgress(progress) {
           db.updateScan(scanId, {
             status: 'analyzing',

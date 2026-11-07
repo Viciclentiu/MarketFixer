@@ -1,13 +1,17 @@
 // Orchestratorul motorului de analiză MarketFixer.
-// Rulează toate modulele pe CrawlResult, deduplică constatările după fingerprint,
-// sortează după severitate + efort și calculează scorurile pe categorii și scorul general.
+// Rulează regulile statice pe CrawlResult, adaugă rezultatele Google Lighthouse (dacă există)
+// și analiza AI de conținut (dacă e activată), deduplică după fingerprint, sortează după
+// severitate + efort și calculează scorurile pe categorii și scorul general.
 import * as seo from './seo.js';
 import * as technical from './technical.js';
 import * as accessibility from './accessibility.js';
 import * as ux from './ux.js';
 import * as content from './content.js';
 import * as aiSearch from './aiSearch.js';
-import { CATEGORIES, SEVERITIES } from './utils.js';
+import { lighthouseFindings } from './lighthouse.js';
+import { runContentAi } from './contentAi.js';
+import { runSerpAnalysis } from './serp.js';
+import { CATEGORIES, SEVERITIES, normalizeUrl } from './utils.js';
 
 export const SEVERITY_PENALTIES = {
   critical: 25,
@@ -28,10 +32,15 @@ export const CATEGORY_WEIGHTS = {
 const SEVERITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3 };
 const EFFORT_ORDER = { low: 0, medium: 1, high: 2 };
 
+const BASE_LIMITATION =
+  'Regulile statice analizează HTML-ul returnat de server (fără execuția JavaScript); conținutul randat exclusiv pe client (SPA) este evaluat doar de Lighthouse, pe pagina auditată.';
+const FIELD_DATA_LIMITATION =
+  'Metricile Core Web Vitals din teren (date reale de la utilizatori) și traficul nu pot fi măsurate fără Google Search Console / CrUX; Lighthouse măsoară în laborator.';
+
 export const DEFAULT_LIMITATIONS = [
-  'Analiza se bazează pe HTML-ul returnat de server (fără execuția JavaScript în browser); conținutul randat exclusiv pe client (SPA) nu este evaluat.',
+  BASE_LIMITATION,
   ...(accessibility.ACCESSIBILITY_LIMITATIONS ?? []),
-  'Metricile Core Web Vitals din teren (LCP, INP, CLS) și traficul real nu pot fi măsurate fără date din Google Search Console / CrUX.',
+  FIELD_DATA_LIMITATION,
 ];
 
 const MODULES = [
@@ -51,32 +60,87 @@ export function scoreCategory(findingsForCategory) {
   return Math.max(0, Math.min(100, Math.round(100 - penalty)));
 }
 
-export async function analyzeSite(crawlResult, { onProgress } = {}) {
-  const safeCrawl = crawlResult && typeof crawlResult === 'object' ? crawlResult : { site: {}, pages: [] };
-  const rawFindings = [];
+function compactLighthouse(lh) {
+  if (!lh) return null;
+  if (!lh.available) return { available: false, error: lh.error ?? 'necunoscut' };
+  const { failedAudits, ...rest } = lh;
+  return { ...rest, failedAuditsCount: failedAudits?.length ?? 0 };
+}
 
+/**
+ * @param {object} crawlResult
+ * @param {object} [options]
+ * @param {Function} [options.onProgress]
+ * @param {object|null} [options.lighthouse] rezultatul runLighthouse() (opțional)
+ * @param {boolean} [options.contentAi] rulează analiza AI de conținut (necesită cheie API)
+ * @param {string} [options.apiKey] cheie Gemini/OpenAI (implicit din .env)
+ * @param {Function} [options.generate] client LLM injectabil (pentru teste)
+ */
+export async function analyzeSite(
+  crawlResult,
+  { onProgress, lighthouse = null, contentAi = false, apiKey, generate } = {},
+) {
+  const safeCrawl = crawlResult && typeof crawlResult === 'object' ? crawlResult : { site: {}, pages: [] };
+  const totalSteps = MODULES.length + (contentAi ? 1 : 0);
+  const report = (done, category) => {
+    if (typeof onProgress !== 'function') return;
+    try {
+      onProgress({ phase: 'analyzing', done, total: totalSteps, category });
+    } catch {
+      // ignore callback errors
+    }
+  };
+
+  let rawFindings = [];
   for (let i = 0; i < MODULES.length; i++) {
     const mod = MODULES[i];
     const items = await mod.run(safeCrawl);
-    if (Array.isArray(items)) {
-      rawFindings.push(...items);
-    }
-    if (typeof onProgress === 'function') {
-      try {
-        onProgress({ phase: 'analyzing', done: i + 1, total: MODULES.length, category: mod.category });
-      } catch {
-        // ignore callback errors
-      }
+    if (Array.isArray(items)) rawFindings.push(...items);
+    report(i + 1, mod.category);
+  }
+
+  const limitations = [BASE_LIMITATION];
+
+  // Google Lighthouse: are prioritate pe pagina auditată (browser real); eliminăm regulile statice redundante.
+  if (lighthouse?.available) {
+    const { findings: lhFindings, redundantKeys } = lighthouseFindings(lighthouse, safeCrawl);
+    rawFindings = rawFindings.filter((f) => !redundantKeys.has(`${f.ruleId}|${normalizeUrl(f.pageUrl)}`));
+    rawFindings.push(...lhFindings);
+    limitations.push(
+      `Google Lighthouse ${lighthouse.lighthouseVersion ?? ''} (${lighthouse.formFactor}) a auditat ${lighthouse.url} într-un Chromium real. Celelalte pagini sunt verificate cu reguli statice.`,
+      'Pe paginile fără Lighthouse, contrastul culorilor nu este verificat (JSDOM nu calculează CSS-ul real).',
+    );
+  } else {
+    limitations.push(...(accessibility.ACCESSIBILITY_LIMITATIONS ?? []));
+    if (lighthouse && !lighthouse.available) {
+      limitations.push(`Google Lighthouse nu a putut rula: ${lighthouse.error}. Auditul tehnic folosește doar reguli statice.`);
     }
   }
+
+  // Analiza AI de conținut și comunicare (Gemini / OpenAI).
+  if (contentAi) {
+    const ai = await runContentAi(safeCrawl, { apiKey, ...(generate ? { generate } : {}) });
+    rawFindings.push(...ai.findings);
+    if (ai.limitation) limitations.push(ai.limitation);
+    report(totalSteps, 'content_ai');
+  }
+
+  // Analiza SerpApi (Google Search + People Also Ask) dacă există SERPAPI_KEY
+  let serpData = null;
+  if (process.env.SERPAPI_KEY) {
+    const serp = await runSerpAnalysis(safeCrawl);
+    rawFindings.push(...serp.findings);
+    serpData = serp.serpData;
+    if (serp.limitation) limitations.push(serp.limitation);
+  }
+
+  limitations.push(FIELD_DATA_LIMITATION);
 
   // Deduplicare după fingerprint
   const seen = new Map();
   for (const f of rawFindings) {
     if (!f || !f.fingerprint) continue;
-    if (!seen.has(f.fingerprint)) {
-      seen.set(f.fingerprint, f);
-    }
+    if (!seen.has(f.fingerprint)) seen.set(f.fingerprint, f);
   }
 
   // Sortare: severitate descrescătoare (critical -> low), apoi efort crescător (low -> high)
@@ -129,6 +193,8 @@ export async function analyzeSite(crawlResult, { onProgress } = {}) {
     scores,
     findings,
     summary,
-    limitations: [...DEFAULT_LIMITATIONS],
+    limitations,
+    lighthouse: compactLighthouse(lighthouse),
+    serp: serpData,
   };
 }

@@ -20,6 +20,16 @@ async function defaultAnalyzePerformance(rows, options) {
   return mod.analyzePerformance(rows, options);
 }
 
+async function defaultRunLighthouse(url) {
+  const mod = await import('./lighthouse/index.js');
+  return mod.runLighthouse(url);
+}
+
+const lighthouseEnabled = process.env.LIGHTHOUSE_ENABLED !== 'false';
+const contentAiEnabled =
+  process.env.CONTENT_AI_ENABLED !== 'false' &&
+  Boolean(process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY);
+
 export function createApp({
   db: providedDb,
   dbPath,
@@ -30,6 +40,9 @@ export function createApp({
   allowPrivate = false,
   skipDnsCheck = false,
   concurrency = 2,
+  // Lighthouse nu rulează când sunt permise adrese private (doar în teste): Chromium nu trece prin protecția SSRF.
+  runLighthouse = lighthouseEnabled && !allowPrivate ? defaultRunLighthouse : null,
+  contentAi = contentAiEnabled,
 } = {}) {
   const db = providedDb ?? createDb(dbPath);
   const queue =
@@ -38,6 +51,8 @@ export function createApp({
       db,
       crawlSite,
       analyzeSite,
+      runLighthouse,
+      contentAi,
       concurrency,
       crawlOptions: { allowPrivate },
     });
@@ -60,6 +75,7 @@ export function createApp({
     createScansRouter({
       db,
       queue,
+      analyzeSite,
       analyzePerformance,
       allowPrivate,
       skipDnsCheck,

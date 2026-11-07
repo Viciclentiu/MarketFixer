@@ -1,5 +1,10 @@
 FROM node:22-alpine
 
+# Chromium pentru Google Lighthouse (rulează headless în container)
+RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont font-noto
+
+ENV CHROME_PATH=/usr/bin/chromium-browser
+
 WORKDIR /app
 
 # Instalează dependențele
