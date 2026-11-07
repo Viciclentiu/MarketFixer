@@ -20,6 +20,7 @@
     "express": "^5.1.0",
     "jsdom": "^26.0.0",
     "lighthouse": "^12.6.0",
-    "multer": "^2.0.0"
+    "multer": "^2.0.0",
+    "undici": "^7.30.2"
   }
 }

@@ -14277,6 +14277,9 @@ function Audit() {
   const [previous, setPrevious] = reactExports.useState("");
   const [uploading, setUploading] = reactExports.useState(false);
   const [uploadError, setUploadError] = reactExports.useState("");
+  const [fixes, setFixes] = reactExports.useState(null);
+  const [fixing, setFixing] = reactExports.useState(false);
+  const [fixError, setFixError] = reactExports.useState("");
   reactExports.useEffect(() => {
     const controller = new AbortController();
     request("/scans", { signal: controller.signal }).then(setHistory).catch((e) => {
@@ -14294,6 +14297,8 @@ function Audit() {
     setComparison(null);
     setPrevious("");
     setUploadError("");
+    setFixes(null);
+    setFixError("");
     async function poll() {
       try {
         const state = await request(scanPath(id), {
@@ -14306,6 +14311,7 @@ function Audit() {
               signal: controller.signal
             })
           );
+          request(`${scanPath(id)}/fixes`, { signal: controller.signal }).then(setFixes).catch(() => {});
         } else if (state.status === "failed") {
           setError(state.error || "Analiza nu a putut fi finalizată.");
         } else timer = setTimeout(poll, 1800);
@@ -14354,6 +14360,20 @@ function Audit() {
       setError(e.message);
     } finally {
       setBusy(false);
+    }
+  }
+  async function generateFixes() {
+    setFixing(true);
+    setFixError("");
+    try {
+      const result = await request(`${scanPath(id)}/remediate`, {
+        method: "POST"
+      });
+      setFixes(result);
+    } catch (e) {
+      setFixError(e.message || "Eroare la generarea fișierelor reparate.");
+    } finally {
+      setFixing(false);
     }
   }
   async function upload(event) {
@@ -14430,7 +14450,7 @@ function Audit() {
       value: report.scores[key],
       "aria-label": label
     }
-  )))), /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("div", { className: "audit-section-heading" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "PLAN DE ÎMBUNĂTĂȚIRE"), /* @__PURE__ */ React.createElement("h2", null, "Începe cu ce contează")), /* @__PURE__ */ React.createElement("span", null, report.summary.totalFindings, " constatări")), /* @__PURE__ */ React.createElement("div", { className: "audit-filters" }, /* @__PURE__ */ React.createElement("label", null, "Categorie", /* @__PURE__ */ React.createElement(
+  )))), /* @__PURE__ */ React.createElement("section", { className: "audit-panel audit-fixes-panel" }, /* @__PURE__ */ React.createElement("div", { className: "audit-section-heading" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "MOTORUL DE REDESIGN UI/UX & AUTO-REMEDIERE"), /* @__PURE__ */ React.createElement("h2", null, "Varianta actualizată și restilizată a site-ului"), /* @__PURE__ */ React.createElement("p", null, "MarketFixer trimite conținutul și structura către Google Gemini cu un prompt de UI/UX Styling & Layout, generând un design modern (Hero nou, Bento Grid, paletă de culori, FAQ și Schema.org).")), /* @__PURE__ */ React.createElement("button", { className: "button button--green", onClick: generateFixes, disabled: fixing }, fixing ? "Se reproiectează site-ul…" : fixes ? "Regenerează designul actualizat →" : "Generează varianta actualizată →")), fixError && /* @__PURE__ */ React.createElement("p", { className: "audit-error", role: "alert" }, fixError), fixes && /* @__PURE__ */ React.createElement("div", { className: "audit-fixes-content", style: { marginTop: "1.5rem" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" } }, /* @__PURE__ */ React.createElement("a", { className: "button button--green", href: `/api${scanPath(id)}/fixes/preview`, target: "_blank", rel: "noreferrer", style: { textDecoration: "none" } }, "Previzualizează site-ul reproiectat live ↗"), /* @__PURE__ */ React.createElement("a", { className: "button button--dark", href: `/api${scanPath(id)}/fixes/download-all`, download: true, style: { textDecoration: "none" } }, "Descarcă toate fișierele (.zip) ↓")), fixes.scoresBefore && fixes.scoresAfter && /* @__PURE__ */ React.createElement("div", { style: { padding: "1rem 1.25rem", background: "rgba(74, 120, 86, 0.08)", borderRadius: "8px", marginBottom: "1.5rem" } }, /* @__PURE__ */ React.createElement("strong", null, "Impactul reparațiilor asupra scorului: "), /* @__PURE__ */ React.createElement("span", { style: { fontSize: "1.1rem", fontWeight: "bold", color: "#2e7d32" } }, "Scor General: ", fixes.scoresBefore.overall, "/100 → ", fixes.scoresAfter.overall, "/100 (+", fixes.scoresAfter.overall - fixes.scoresBefore.overall, " pct)")), /* @__PURE__ */ React.createElement("h3", { style: { marginBottom: "0.8rem" } }, "Pachetul de fișiere gata de descărcat (", fixes.files?.length || 0, "):"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: "0.75rem" } }, (fixes.files || []).map((file) => /* @__PURE__ */ React.createElement("div", { key: file.path, style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.85rem 1.2rem", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "6px" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", { style: { fontFamily: "monospace" } }, file.path), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.85rem", color: "#64748b" } }, file.description)), /* @__PURE__ */ React.createElement("a", { className: "button button--dark", style: { fontSize: "0.8rem", padding: "0.4rem 0.8rem", textDecoration: "none" }, href: `/api${scanPath(id)}/fixes/download?path=${encodeURIComponent(file.path)}`, download: true }, "Descarcă ↓")))))), /* @__PURE__ */ React.createElement("section", { className: "audit-panel" }, /* @__PURE__ */ React.createElement("div", { className: "audit-section-heading" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "audit-eyebrow" }, "PLAN DE ÎMBUNĂTĂȚIRE"), /* @__PURE__ */ React.createElement("h2", null, "Începe cu ce contează")), /* @__PURE__ */ React.createElement("span", null, report.summary.totalFindings, " constatări")), /* @__PURE__ */ React.createElement("div", { className: "audit-filters" }, /* @__PURE__ */ React.createElement("label", null, "Categorie", /* @__PURE__ */ React.createElement(
     "select",
     {
       "aria-label": "Categorie",
