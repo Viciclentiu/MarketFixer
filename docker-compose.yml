@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: marketfixer-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    volumes:
+      - marketfixer_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  marketfixer_data:
