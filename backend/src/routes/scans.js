@@ -10,8 +10,30 @@ import {
   assertPublicUrl,
 } from '../crawler/index.js';
 import { compareReports } from '../compare.js';
+import { computeScoresFromFindings } from '../analyzers/index.js';
 import { remediateSite } from '../remediator/index.js';
 import { buildZipBuffer } from '../remediator/zip.js';
+
+function normalizeReportScores(report) {
+  if (!report || typeof report !== 'object' || !Array.isArray(report.findings)) {
+    return report;
+  }
+  const s = report.scores || {};
+  const hasZeroOrMissing =
+    s.seo === 0 ||
+    s.accessibility === 0 ||
+    s.ux === 0 ||
+    s.content === 0 ||
+    s.technical === undefined ||
+    s.ai_search === undefined;
+  if (hasZeroOrMissing) {
+    return {
+      ...report,
+      scores: computeScoresFromFindings(report.findings, report.lighthouse),
+    };
+  }
+  return report;
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -102,17 +124,19 @@ export function createScansRouter({
     if (!report) {
       return res.status(404).json({ error: 'Raportul nu este disponibil încă.' });
     }
-    return res.json(report);
+    return res.json(normalizeReportScores(report));
   });
 
   // POST /api/scans/:id/remediate -> Generează fișierele rescrise cu Gemini/OpenAI + Cheerio
   router.post('/:id/remediate', async (req, res) => {
+    res.setTimeout(0);
     try {
       const { id } = req.params;
-      const report = db.getReport(id);
-      if (!report) {
+      const rawReport = db.getReport(id);
+      if (!rawReport) {
         return res.status(404).json({ error: 'Raportul scanării nu este încă disponibil.' });
       }
+      const report = normalizeReportScores(rawReport);
       const snapshot =
         (typeof db.getSnapshot === 'function' ? db.getSnapshot(id) : null) || {
           site: { rootUrl: report.url, origin: new URL(report.url).origin },
@@ -202,12 +226,12 @@ export function createScansRouter({
 
     let previewHtml = htmlFile.fixedContent;
     const baseTag = `<base href="${fixes.url}">`;
-    const inlineCss = cssFile ? `<style>${cssFile.fixedContent}</style>` : '';
-    const inlineJs = jsFile ? `<script>${jsFile.fixedContent}</script>` : '';
+    const inlineCss = cssFile ? `<style id="mf-inline-style">${cssFile.fixedContent}</style>` : '';
+    const inlineJs = jsFile ? `<script id="mf-inline-script">${jsFile.fixedContent}</script>` : '';
 
     previewHtml = previewHtml
-      .replace('<link rel="stylesheet" href="marketfixer-fixes.css">', inlineCss)
-      .replace('<script src="marketfixer-patch.js" defer></script>', inlineJs)
+      .replace(/<link[^>]*href=["']marketfixer-fixes\.css["'][^>]*>/i, inlineCss)
+      .replace(/<script[^>]*src=["']marketfixer-patch\.js["'][^>]*><\/script>/i, inlineJs)
       .replace(/<head([^>]*)>/i, `<head$1>${baseTag}`);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

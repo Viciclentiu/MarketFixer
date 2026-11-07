@@ -379,7 +379,7 @@ export default function Audit() {
                   onClick={generateFixes}
                   disabled={fixing}
                 >
-                  {fixing ? "Generăm varianta reparată…" : fixes ? "Regenerează reparațiile ⚡" : "Generează varianta reparată (Auto-Fix) ⚡"}
+                  {fixing ? "Generăm varianta reparată…" : fixes ? "Regenerează designul actualizat →" : "Generează varianta actualizată →"}
                 </button>
               </div>
 

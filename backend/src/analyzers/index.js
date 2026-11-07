@@ -53,11 +53,93 @@ const MODULES = [
 ];
 
 export function scoreCategory(findingsForCategory) {
-  let penalty = 0;
-  for (const f of findingsForCategory) {
-    penalty += SEVERITY_PENALTIES[f.severity] ?? 0;
+  if (!Array.isArray(findingsForCategory) || findingsForCategory.length === 0) {
+    return 100;
   }
-  return Math.max(0, Math.min(100, Math.round(100 - penalty)));
+
+  // Grupăm constatările după ruleId pentru ca aceeași problemă repetată pe 15-20 de subpagini
+  // (ex. seo.meta_description.missing, content.thin_content, accessibility.image-alt)
+  // să nu multiplice penalizarea de 20 de ori și să ducă scorul la 0.
+  const byRule = new Map();
+  let anonymousIndex = 0;
+  let hasCritical = false;
+
+  for (const f of findingsForCategory) {
+    if (!f) continue;
+    const base = SEVERITY_PENALTIES[f.severity] ?? 0;
+    if (f.severity === 'critical') hasCritical = true;
+    const key = f.ruleId ? String(f.ruleId) : `__anon_${anonymousIndex++}`;
+    const existing = byRule.get(key);
+    if (!existing) {
+      byRule.set(key, { maxPenalty: base, count: 1 });
+    } else {
+      existing.maxPenalty = Math.max(existing.maxPenalty, base);
+      existing.count += 1;
+    }
+  }
+
+  let rawPenalty = 0;
+  for (const { maxPenalty, count } of byRule.values()) {
+    const extraOccurrences = Math.max(0, count - 1);
+    // Paginile suplimentare cu aceeași regulă adaugă cel mult +35% din penalizarea de bază a regulii
+    const spreadPenalty = Math.min(maxPenalty * 0.35, extraOccurrences * 0.75);
+    rawPenalty += maxPenalty + spreadPenalty;
+  }
+
+  // Pentru penalizări mici/moderate (<= 45 pct) păstrăm scăderea liniară exactă (100 - rawPenalty).
+  // Peste 45 pct aplicăm o curbă cu randament descrescător ca scorul să reflecte nuanțat gravitatea
+  // fără să cadă direct la 0 pe site-uri funcționale cu mai multe constatări medii.
+  let effectivePenalty = rawPenalty;
+  if (rawPenalty > 45) {
+    effectivePenalty = 45 + (rawPenalty - 45) * 0.38;
+  }
+
+  const minFloor = hasCritical ? 8 : 15;
+  return Math.max(minFloor, Math.min(100, Math.round(100 - effectivePenalty)));
+}
+
+export function computeScoresFromFindings(findings = [], lighthouse = null) {
+  const findingsByCat = Object.fromEntries(CATEGORIES.map((c) => [c, []]));
+  for (const f of findings) {
+    if (f && findingsByCat[f.category]) {
+      findingsByCat[f.category].push(f);
+    }
+  }
+
+  const catScores = {};
+  for (const cat of CATEGORIES) {
+    catScores[cat] = scoreCategory(findingsByCat[cat]);
+  }
+
+  // Integrăm scorurile reale măsurate de Google Lighthouse (0-100) atunci când sunt disponibile
+  const lhScores = lighthouse?.available ? lighthouse.scores : null;
+  if (lhScores && typeof lhScores === 'object') {
+    if (typeof lhScores.seo === 'number' && lhScores.seo > 0) {
+      catScores.seo = Math.round(catScores.seo * 0.55 + lhScores.seo * 0.45);
+    }
+    if (typeof lhScores.accessibility === 'number' && lhScores.accessibility > 0) {
+      catScores.accessibility = Math.round(catScores.accessibility * 0.55 + lhScores.accessibility * 0.45);
+    }
+    if (typeof lhScores.performance === 'number' && lhScores.performance > 0) {
+      catScores.technical = Math.round(catScores.technical * 0.65 + lhScores.performance * 0.35);
+    }
+  }
+
+  let weightedSum = 0;
+  for (const cat of CATEGORIES) {
+    weightedSum += catScores[cat] * (CATEGORY_WEIGHTS[cat] ?? 0);
+  }
+  const overall = Math.max(0, Math.min(100, Math.round(weightedSum)));
+
+  return {
+    overall,
+    seo: catScores.seo,
+    accessibility: catScores.accessibility,
+    ux: catScores.ux,
+    content: catScores.content,
+    technical: catScores.technical,
+    ai_search: catScores.ai_search,
+  };
 }
 
 function compactLighthouse(lh) {
@@ -155,32 +237,13 @@ export async function analyzeSite(
   // Grupare pe categorii și severități
   const byCategory = Object.fromEntries(CATEGORIES.map((c) => [c, 0]));
   const bySeverity = Object.fromEntries(SEVERITIES.map((s) => [s, 0]));
-  const findingsByCat = Object.fromEntries(CATEGORIES.map((c) => [c, []]));
 
   for (const f of findings) {
     if (byCategory[f.category] !== undefined) byCategory[f.category] += 1;
     if (bySeverity[f.severity] !== undefined) bySeverity[f.severity] += 1;
-    if (findingsByCat[f.category]) findingsByCat[f.category].push(f);
   }
 
-  const catScores = {};
-  for (const cat of CATEGORIES) {
-    catScores[cat] = scoreCategory(findingsByCat[cat]);
-  }
-
-  let weightedSum = 0;
-  for (const cat of CATEGORIES) {
-    weightedSum += catScores[cat] * (CATEGORY_WEIGHTS[cat] ?? 0);
-  }
-  const overall = Math.max(0, Math.min(100, Math.round(weightedSum)));
-
-  const scores = {
-    overall,
-    seo: catScores.seo,
-    accessibility: catScores.accessibility,
-    ux: catScores.ux,
-    content: catScores.content,
-  };
+  const scores = computeScoresFromFindings(findings, lighthouse);
 
   const summary = {
     totalFindings: findings.length,
